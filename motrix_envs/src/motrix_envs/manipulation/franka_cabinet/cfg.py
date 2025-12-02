@@ -35,10 +35,12 @@ class FrankaCabinetEnvCfg(EnvCfg):
 
     This environment uses Franka Panda robot (9 DOF: 7 arm + 2 fingers),
     matching Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0" environment.
-    The task is to open a drawer on a studyTable.
+    The task is to open the top drawer of a Sektion Cabinet.
     
-    The drawer joint moves in negative Y direction (range [-0.48, 0]),
-    so we invert the reward logic in the environment code.
+    Layout (matching Isaac Lab):
+    - Robot at (1, 0, 0)
+    - Cabinet at (0, 0, 0.4)
+    - Drawer opens in +X direction (toward robot), range [0, 0.4]
     """
 
     # --- base EnvCfg fields -------------------------------------------------
@@ -54,7 +56,7 @@ class FrankaCabinetEnvCfg(EnvCfg):
     # --- RL hyper-parameters (from Isaac Lab) -------------------------------
     # Note: Isaac Lab uses action_scale = 7.5; we further reduce it for MotrixSim to
     # improve numerical stability under our MuJoCo-style dynamics model.
-    action_scale: float = 3.0
+    action_scale: float = 2.0
     dof_velocity_scale: float = 0.1
 
     dist_reward_scale: float = 1.5
@@ -65,11 +67,11 @@ class FrankaCabinetEnvCfg(EnvCfg):
 
     # --- Scene / kinematic configuration -----------------------------------
     # Names of bodies used to compute grasp frames.
-    # These match the body names in scene.xml for Franka Panda
+    # These match the body names in scene.xml for Franka Panda and Sektion Cabinet
     robot_hand_body_name: str = "link7"
     robot_left_finger_body_name: str = "left_finger"
     robot_right_finger_body_name: str = "right_finger"
-    cabinet_drawer_body_name: str = "studyTable_Drawer"
+    cabinet_drawer_body_name: str = "drawer_top"  # Sektion Cabinet top drawer
 
     # Joint names for the robot (7 arm joints + 2 finger joints = 9 DOF)
     robot_joint_names: Sequence[str] = field(default_factory=lambda: [
@@ -91,12 +93,12 @@ class FrankaCabinetEnvCfg(EnvCfg):
         "actuator5", "actuator6", "actuator7"
     ])
     
-    # Drawer joint name
-    drawer_joint_name: str = "drawer_joint"
+    # Drawer joint name (Sektion Cabinet top drawer)
+    drawer_joint_name: str = "drawer_top_joint"
     
-    # Drawer opening threshold (negative because drawer pulls inward)
-    # When drawer_pos < -0.35, consider it "open"
-    drawer_open_threshold: float = -0.35
+    # Drawer opening threshold (positive, drawer opens in +X direction)
+    # When drawer_pos > 0.39, consider it "open" (matching Isaac Lab: 0.39)
+    drawer_open_threshold: float = 0.39
 
     # Local grasp offsets expressed in the respective body frames.
     # Adjusted for Franka Panda gripper (eef site is at hand)
@@ -104,21 +106,20 @@ class FrankaCabinetEnvCfg(EnvCfg):
     robot_local_grasp_quat: Sequence[float] = (0.0, 0.0, 0.0, 1.0)  # (x, y, z, w)
 
     # Drawer handle grasp position (in drawer body frame)
-    # Handle is at pos="0 -.36 .01" relative to drawer body
-    # After table rotation -90°, handle world pos ≈ (0.3, 0, 0.665)
-    drawer_local_grasp_pos: Sequence[float] = (0.0, -0.36, 0.01)
+    # Sektion Cabinet drawer_top_handle site is at pos="0.303 0 0.01"
+    # Matching Isaac Lab: drawer_local_grasp_pose = [0.3, 0.01, 0.0]
+    drawer_local_grasp_pos: Sequence[float] = (0.3, 0.01, 0.0)
     drawer_local_grasp_quat: Sequence[float] = (0.0, 0.0, 0.0, 1.0)  # (x, y, z, w)
 
     # Axes used for orientation alignment rewards, expressed in local frames.
     # Scene layout (matching Isaac Lab):
     #   - Robot at (1, 0, 0)
-    #   - Table at (-0.06, 0, 0), rotated -90° around Z
-    #   - Drawer pulls toward +X world direction (toward robot)
-    #   - Drawer local -Y axis = world +X axis (pull direction)
+    #   - Cabinet at (0, 0, 0.4)
+    #   - Drawer opens in +X direction (toward robot)
+    #   - Handle is on +X side of drawer
     # Isaac Lab uses: gripper_forward=[0,0,1], drawer_inward=[-1,0,0], gripper_up=[0,1,0], drawer_up=[0,0,1]
-    # Our drawer's inward direction is local +Y (opposite of handle direction -Y)
     gripper_forward_axis: Sequence[float] = (0.0, 0.0, 1.0)
-    drawer_inward_axis: Sequence[float] = (0.0, 1.0, 0.0)  # drawer interior direction (local +Y)
+    drawer_inward_axis: Sequence[float] = (-1.0, 0.0, 0.0)  # drawer interior direction (-X, toward cabinet)
     gripper_up_axis: Sequence[float] = (0.0, 1.0, 0.0)
     drawer_up_axis: Sequence[float] = (0.0, 0.0, 1.0)
     

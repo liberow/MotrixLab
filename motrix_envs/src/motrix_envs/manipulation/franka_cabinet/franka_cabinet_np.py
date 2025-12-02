@@ -296,7 +296,7 @@ class FrankaCabinetEnv(NpEnv):
     ) -> tuple[np.ndarray, dict]:
         """Reward function adapted from Isaac Lab FrankaCabinetEnv.
         
-        Note: The drawer moves in negative direction, so we invert the open_reward.
+        Sektion Cabinet drawer opens in +X direction (positive joint value = open).
         """
         cfg = self._cfg
         num_envs = self._num_envs
@@ -322,10 +322,10 @@ class FrankaCabinetEnv(NpEnv):
         action_penalty = np.sum(actions**2, axis=-1)
 
         # --- drawer open reward --------------------------------------------
-        # Note: drawer moves in NEGATIVE direction, so more negative = more open
+        # Sektion Cabinet: drawer moves in POSITIVE direction (+X), more positive = more open
         drawer_dof = data.dof_pos[:, self._drawer_dof_id]
-        # Invert: reward for pulling drawer out (more negative position)
-        open_reward = -drawer_dof  # negative position -> positive reward
+        # Reward for pulling drawer out (matching Isaac Lab: open_reward = cabinet_dof_pos[:, 3])
+        open_reward = drawer_dof
 
         # --- finger distance penalty ---------------------------------------
         lfinger_pos = self._lfinger_body.get_position(data)
@@ -347,10 +347,10 @@ class FrankaCabinetEnv(NpEnv):
             - cfg.action_penalty_scale * action_penalty
         )
 
-        # Staged bonus as drawer opens (inverted thresholds for negative direction)
-        rewards = np.where(drawer_dof < -0.01, rewards + 0.25, rewards)
-        rewards = np.where(drawer_dof < -0.2, rewards + 0.25, rewards)
-        rewards = np.where(drawer_dof < -0.35, rewards + 0.25, rewards)
+        # Staged bonus as drawer opens (matching Isaac Lab thresholds)
+        rewards = np.where(drawer_dof > 0.01, rewards + 0.25, rewards)
+        rewards = np.where(drawer_dof > 0.2, rewards + 0.25, rewards)
+        rewards = np.where(drawer_dof > 0.35, rewards + 0.25, rewards)
 
         info = {
             "dist_reward": cfg.dist_reward_scale * dist_reward,
@@ -416,8 +416,8 @@ class FrankaCabinetEnv(NpEnv):
             drawer_grasp_quat=drawer_grasp_quat,
         )
 
-        # Termination: drawer is "open" when position < threshold (negative direction)
-        terminated = drawer_pos < cfg.drawer_open_threshold
+        # Termination: drawer is "open" when position > threshold (positive direction)
+        terminated = drawer_pos > cfg.drawer_open_threshold
 
         info = dict(state.info)
         info.setdefault("Reward", {})
