@@ -14,6 +14,17 @@
 # limitations under the License.
 # ==============================================================================
 
+"""
+Franka-Cabinet (Drawer Opening) environment for MotrixLab.
+
+This environment uses Franka Panda robot (9 DOF: 7 arm + 2 fingers) to open
+a drawer on a study table. The control follows Isaac Lab's 
+"Isaac-Franka-Cabinet-Direct-v0" approach.
+
+Note: The drawer moves in the negative Y direction (range [-0.48, 0]), so
+the reward logic is inverted compared to Isaac Lab's original implementation.
+"""
+
 from __future__ import annotations
 
 from typing import Sequence
@@ -43,8 +54,6 @@ def _quat_multiply(q1: np.ndarray, q2: np.ndarray) -> np.ndarray:
 
 def _quat_rotate(q: np.ndarray, v: np.ndarray) -> np.ndarray:
     """Rotate vector(s) v by quaternion(s) q (x, y, z, w), vectorized over leading dim."""
-    # Implementation adapted from motrix_envs.locomotion.go1.walk_np.quat_rotate_inverse
-    # but for forward rotation instead of inverse.
     assert q.shape[-1] == 4
     assert v.shape[-1] == 3
 
@@ -74,8 +83,8 @@ def _combine_pose(
 class FrankaCabinetEnv(NpEnv):
     """Franka-Cabinet manipulation environment on MotrixSim backend.
 
-    This class mirrors the logic of Isaac Lab's ``FrankaCabinetEnv``
-    (direct workflow) but implemented using the MotrixLab NpEnv API.
+    This class implements a drawer opening task using Franka Panda robot
+    (9 DOF: 7 arm + 2 fingers), matching Isaac Lab's implementation.
     """
 
     _cfg: FrankaCabinetEnvCfg
@@ -83,27 +92,48 @@ class FrankaCabinetEnv(NpEnv):
     def __init__(self, cfg: FrankaCabinetEnvCfg, num_envs: int = 1):
         super().__init__(cfg, num_envs=num_envs)
 
-        if cfg.robot_dof_ids is None or cfg.finger_dof_ids is None or cfg.drawer_dof_id is None:
-            raise ValueError(
-                "FrankaCabinetEnvCfg.robot_dof_ids, finger_dof_ids and drawer_dof_id "
-                "must be set to match the DOF ordering in franka_cabinet.xml."
-            )
-
-        self._robot_dof_ids = np.asarray(cfg.robot_dof_ids, dtype=np.int64)
-        self._finger_dof_ids = np.asarray(cfg.finger_dof_ids, dtype=np.int64)
-        self._drawer_dof_id = int(cfg.drawer_dof_id)
-
-        if self._robot_dof_ids.shape[0] != 9:
-            raise ValueError(f"Expected 9 robot DOFs (7 arm + 2 fingers), got {self._robot_dof_ids.shape[0]}")
+        self._robot_joint_names = list(cfg.robot_joint_names)
+        self._finger_joint_names = list(cfg.finger_joint_names)
+        self._num_arm_joints = len(self._robot_joint_names)
+        
+        # Get joint/body handles from the model
+        model: mtx.SceneModel = self._model
+        
+        # Get DOF indices for robot arm joints
+        self._robot_dof_ids = np.array([
+            model.get_joint(name).dof_pos_index for name in self._robot_joint_names
+        ], dtype=np.int64)
+        
+        # Get DOF indices for finger joints
+        self._finger_dof_ids = np.array([
+            model.get_joint(name).dof_pos_index for name in self._finger_joint_names
+        ], dtype=np.int64)
+        
+        # Get drawer joint DOF index
+        self._drawer_dof_id = model.get_joint(cfg.drawer_joint_name).dof_pos_index
+        
+        # Get actuator indices
+        self._arm_actuator_ids = np.array([
+            model.get_actuator(name).index for name in cfg.arm_actuator_names
+        ], dtype=np.int64)
+        self._gripper_actuator_id = model.get_actuator(cfg.gripper_actuator_name).index
 
         # --- action & observation spaces ------------------------------------
+        # Action space: 9 dims (7 arm joints + 2 fingers, but fingers coupled)
+        # Following Isaac Lab: 9-dim action (7 arm + 1 gripper mapped to 2 fingers)
         self._action_space = gym.spaces.Box(
             low=-1.0,
             high=1.0,
-            shape=(self._robot_dof_ids.shape[0],),
+            shape=(self._num_arm_joints + 2,),  # 9 DOF like Isaac Lab
             dtype=np.float32,
         )
-        # Match Isaac Lab: 23-dim policy observation
+        # Observation space: 23 dims (matching Isaac Lab)
+        # - 9 robot DOF positions (scaled)
+        # - 9 robot DOF velocities (scaled)
+        # - 3 to_target vector
+        # - 1 drawer position
+        # - 1 drawer velocity
+        # Total: 9 + 9 + 3 + 1 + 1 = 23
         self._observation_space = gym.spaces.Box(
             low=-np.inf,
             high=np.inf,
@@ -112,11 +142,11 @@ class FrankaCabinetEnv(NpEnv):
         )
 
         # --- kinematic handles ---------------------------------------------
-        model: mtx.SceneModel = self._model
-        self._hand_body = model.get_body(cfg.robot_hand_body_name)
-        self._lfinger_body = model.get_body(cfg.robot_left_finger_body_name)
-        self._rfinger_body = model.get_body(cfg.robot_right_finger_body_name)
-        self._drawer_body = model.get_body(cfg.cabinet_drawer_body_name)
+        # Note: motrixsim uses get_link instead of get_body
+        self._hand_body = model.get_link(cfg.robot_hand_body_name)
+        self._lfinger_body = model.get_link(cfg.robot_left_finger_body_name)
+        self._rfinger_body = model.get_link(cfg.robot_right_finger_body_name)
+        self._drawer_body = model.get_link(cfg.cabinet_drawer_body_name)
 
         # Local grasp frames
         self._robot_local_grasp_pos = np.asarray(cfg.robot_local_grasp_pos, dtype=np.float32)
@@ -130,15 +160,32 @@ class FrankaCabinetEnv(NpEnv):
         self._gripper_up_axis = np.asarray(cfg.gripper_up_axis, dtype=np.float32)
         self._drawer_up_axis = np.asarray(cfg.drawer_up_axis, dtype=np.float32)
 
-        # Internal buffers for PD-like position targets
-        self._dof_targets = np.zeros((self._num_envs, model.num_dof_pos), dtype=np.float32)
+        # Internal buffers for incremental position targets
+        self._dof_targets = np.zeros((self._num_envs, self._num_arm_joints + 2), dtype=np.float32)
 
-        # Simple joint limits (if available) used to clamp targets
-        self._joint_limits: np.ndarray | None
-        if hasattr(model, "joint_limits") and model.joint_limits is not None:
-            self._joint_limits = np.asarray(model.joint_limits, dtype=np.float32)
-        else:
-            self._joint_limits = None
+        # Joint limits
+        self._joint_limits_low = np.asarray(cfg.joint_limits_low, dtype=np.float32)
+        self._joint_limits_high = np.asarray(cfg.joint_limits_high, dtype=np.float32)
+        self._finger_limits_low = cfg.finger_limits_low
+        self._finger_limits_high = cfg.finger_limits_high
+        
+        # Combined limits for 9 DOF (7 arm + 2 fingers)
+        self._all_limits_low = np.concatenate([
+            self._joint_limits_low,
+            np.array([self._finger_limits_low, self._finger_limits_low])
+        ])
+        self._all_limits_high = np.concatenate([
+            self._joint_limits_high,
+            np.array([self._finger_limits_high, self._finger_limits_high])
+        ])
+        
+        # DOF speed scales (fingers move slower)
+        self._dof_speed_scales = np.ones(self._num_arm_joints + 2, dtype=np.float32)
+        self._dof_speed_scales[-2:] = 0.1  # finger joints move slower
+        
+        # Initial joint positions
+        self._init_joint_pos = np.asarray(cfg.init_joint_pos, dtype=np.float32)
+        self._init_finger_pos = cfg.init_finger_pos
 
     # --------------------------------------------------------------------- #
     #  Properties
@@ -155,51 +202,51 @@ class FrankaCabinetEnv(NpEnv):
     #  Core NpEnv overrides
     # --------------------------------------------------------------------- #
     def apply_action(self, actions: np.ndarray, state: NpEnvState) -> NpEnvState:
-        """Map RL actions in [-1, 1] to joint position targets (incremental)."""
+        """Map RL actions in [-1, 1] to joint position targets (incremental).
+        
+        This follows Isaac Lab's control approach:
+        - Actions are scaled and added to current position targets
+        - Targets are clamped to joint limits
+        - Actuator controls are set directly (position control via affine actuators)
+        """
         cfg = self._cfg
         actions = np.asarray(actions, dtype=np.float32)
-        assert actions.shape == (self._num_envs, self._robot_dof_ids.shape[0])
+        assert actions.shape == (self._num_envs, self._num_arm_joints + 2)
 
         actions = np.clip(actions, -1.0, 1.0)
 
-        # Per-DOF speed scaling: fingers move slower, like in Isaac Lab.
-        speed_scales = np.ones_like(self._robot_dof_ids, dtype=np.float32)
-        speed_scales[-2:] = 0.1  # assume last two robot_dof_ids are fingers
+        # Sync _dof_targets from state.info (handles partial resets correctly)
+        if "_dof_targets" in state.info:
+            self._dof_targets = state.info["_dof_targets"]
 
         dt = cfg.ctrl_dt
-        delta = speed_scales * dt * cfg.action_scale * actions
+        delta = self._dof_speed_scales * dt * cfg.action_scale * actions
 
-        self._dof_targets[:, self._robot_dof_ids] += delta
+        # Update position targets incrementally
+        self._dof_targets = self._dof_targets + delta
 
-        if self._joint_limits is not None:
-            low = self._joint_limits[0, self._robot_dof_ids]
-            high = self._joint_limits[1, self._robot_dof_ids]
-            self._dof_targets[:, self._robot_dof_ids] = np.clip(
-                self._dof_targets[:, self._robot_dof_ids],
-                low,
-                high,
-            )
+        # Clamp to joint limits
+        self._dof_targets = np.clip(
+            self._dof_targets,
+            self._all_limits_low,
+            self._all_limits_high,
+        )
 
-        # Simple PD mapping from position error to actuator torques,
-        # following the style used in the Go1 locomotion task.
-        kps = np.ones_like(self._robot_dof_ids, dtype=np.float32) * 80.0
-        kds = np.ones_like(self._robot_dof_ids, dtype=np.float32) * 4.0
-
-        dof_pos = state.data.dof_pos[:, self._robot_dof_ids]
-        dof_vel = state.data.dof_vel[:, self._robot_dof_ids]
-
-        pos_err = self._dof_targets[:, self._robot_dof_ids] - dof_pos
-        torques = kps * pos_err - kds * dof_vel
-
-        # We assume that actuators controlling the robot are ordered
-        # consistently with robot_dof_ids. If this is not the case the
-        # XML model should be adjusted accordingly.
-        # For simplicity we zero out all actuator controls and then fill
-        # the first len(robot_dof_ids) entries.
+        # Set actuator controls
+        # Franka uses position control via affine actuators (ctrl = target position)
         num_act = self._model.num_actuators
         actuator_ctrls = np.zeros((self._num_envs, num_act), dtype=np.float32)
-        n = min(num_act, self._robot_dof_ids.shape[0])
-        actuator_ctrls[:, :n] = torques[:, :n]
+        
+        # Arm joint targets (directly set position targets)
+        for i, act_id in enumerate(self._arm_actuator_ids):
+            actuator_ctrls[:, act_id] = self._dof_targets[:, i]
+        
+        # Gripper control (convert finger position to tendon control range 0-255)
+        # Both fingers should have same position, use average
+        finger_pos_avg = (self._dof_targets[:, -2] + self._dof_targets[:, -1]) / 2.0
+        # Map finger position [0, 0.04] to control [255, 0] (255 = closed, 0 = open)
+        gripper_ctrl = 255.0 * (1.0 - finger_pos_avg / self._finger_limits_high)
+        actuator_ctrls[:, self._gripper_actuator_id] = np.clip(gripper_ctrl, 0, 255)
 
         state.data.actuator_ctrls = actuator_ctrls
 
@@ -213,7 +260,7 @@ class FrankaCabinetEnv(NpEnv):
         np.ndarray, np.ndarray, np.ndarray, np.ndarray
     ]:
         """Compute global grasp frames for robot hand and drawer handle."""
-        # Hand pose
+        # Hand pose (link7)
         hand_pose = self._hand_body.get_pose(data)  # (N, 7): [x, y, z, qx, qy, qz, qw]
         hand_pos = hand_pose[:, 0:3]
         hand_quat = hand_pose[:, 3:7]
@@ -247,7 +294,10 @@ class FrankaCabinetEnv(NpEnv):
         drawer_grasp_pos: np.ndarray,
         drawer_grasp_quat: np.ndarray,
     ) -> tuple[np.ndarray, dict]:
-        """Reward function ported from Isaac Lab FrankaCabinetEnv."""
+        """Reward function adapted from Isaac Lab FrankaCabinetEnv.
+        
+        Note: The drawer moves in negative direction, so we invert the open_reward.
+        """
         cfg = self._cfg
         num_envs = self._num_envs
 
@@ -272,8 +322,10 @@ class FrankaCabinetEnv(NpEnv):
         action_penalty = np.sum(actions**2, axis=-1)
 
         # --- drawer open reward --------------------------------------------
+        # Note: drawer moves in NEGATIVE direction, so more negative = more open
         drawer_dof = data.dof_pos[:, self._drawer_dof_id]
-        open_reward = drawer_dof
+        # Invert: reward for pulling drawer out (more negative position)
+        open_reward = -drawer_dof  # negative position -> positive reward
 
         # --- finger distance penalty ---------------------------------------
         lfinger_pos = self._lfinger_body.get_position(data)
@@ -295,10 +347,10 @@ class FrankaCabinetEnv(NpEnv):
             - cfg.action_penalty_scale * action_penalty
         )
 
-        # staged bonus as drawer opens
-        rewards = np.where(drawer_dof > 0.01, rewards + 0.25, rewards)
-        rewards = np.where(drawer_dof > 0.2, rewards + 0.25, rewards)
-        rewards = np.where(drawer_dof > 0.35, rewards + 0.25, rewards)
+        # Staged bonus as drawer opens (inverted thresholds for negative direction)
+        rewards = np.where(drawer_dof < -0.01, rewards + 0.25, rewards)
+        rewards = np.where(drawer_dof < -0.2, rewards + 0.25, rewards)
+        rewards = np.where(drawer_dof < -0.35, rewards + 0.25, rewards)
 
         info = {
             "dist_reward": cfg.dist_reward_scale * dist_reward,
@@ -321,29 +373,30 @@ class FrankaCabinetEnv(NpEnv):
         dof_pos = data.dof_pos
         dof_vel = data.dof_vel
 
+        # Get robot DOF positions and velocities (7 arm + 2 fingers = 9)
+        dof_pos_arm = dof_pos[:, self._robot_dof_ids]
+        dof_vel_arm = dof_vel[:, self._robot_dof_ids]
+        dof_pos_fingers = dof_pos[:, self._finger_dof_ids]
+        dof_vel_fingers = dof_vel[:, self._finger_dof_ids]
+        
+        # Concatenate arm and finger DOFs
+        dof_pos_robot = np.concatenate([dof_pos_arm, dof_pos_fingers], axis=-1)
+        dof_vel_robot = np.concatenate([dof_vel_arm, dof_vel_fingers], axis=-1)
+
         # Normalize robot DOFs to [-1, 1].
-        if self._joint_limits is not None:
-            low = self._joint_limits[0, self._robot_dof_ids]
-            high = self._joint_limits[1, self._robot_dof_ids]
-        else:
-            low = -np.pi * np.ones_like(self._robot_dof_ids, dtype=np.float32)
-            high = np.pi * np.ones_like(self._robot_dof_ids, dtype=np.float32)
-
-        dof_pos_robot = dof_pos[:, self._robot_dof_ids]
-        dof_vel_robot = dof_vel[:, self._robot_dof_ids]
-
-        dof_pos_scaled = 2.0 * (dof_pos_robot - low) / (high - low) - 1.0
+        dof_pos_scaled = 2.0 * (dof_pos_robot - self._all_limits_low) / (self._all_limits_high - self._all_limits_low) - 1.0
+        
         to_target = drawer_grasp_pos - robot_grasp_pos
         drawer_pos = dof_pos[:, self._drawer_dof_id]
         drawer_vel = dof_vel[:, self._drawer_dof_id]
 
         obs = np.concatenate(
             [
-                dof_pos_scaled,
-                dof_vel_robot * cfg.dof_velocity_scale,
-                to_target,
-                drawer_pos[:, None],
-                drawer_vel[:, None],
+                dof_pos_scaled,  # 9 dims
+                dof_vel_robot * cfg.dof_velocity_scale,  # 9 dims
+                to_target,  # 3 dims
+                drawer_pos[:, None],  # 1 dim
+                drawer_vel[:, None],  # 1 dim
             ],
             axis=-1,
         )
@@ -352,7 +405,7 @@ class FrankaCabinetEnv(NpEnv):
         # --- rewards & termination -----------------------------------------
         last_actions = state.info.get(
             "last_actions",
-            np.zeros((self._num_envs, self._robot_dof_ids.shape[0]), dtype=np.float32),
+            np.zeros((self._num_envs, self._num_arm_joints + 2), dtype=np.float32),
         )
         rewards, rew_info = self._compute_reward(
             actions=last_actions,
@@ -363,12 +416,16 @@ class FrankaCabinetEnv(NpEnv):
             drawer_grasp_quat=drawer_grasp_quat,
         )
 
-        drawer_open = drawer_pos
-        terminated = drawer_open > 0.39
+        # Termination: drawer is "open" when position < threshold (negative direction)
+        terminated = drawer_pos < cfg.drawer_open_threshold
 
         info = dict(state.info)
         info.setdefault("Reward", {})
-        info["Reward"]["franka_cabinet"] = rew_info
+        # Flatten reward info - each component should be a direct entry
+        for rew_key, rew_value in rew_info.items():
+            info["Reward"][rew_key] = rew_value
+        # Sync _dof_targets to info for correct partial reset handling
+        info["_dof_targets"] = self._dof_targets
 
         return state.replace(
             obs=obs,
@@ -382,39 +439,53 @@ class FrankaCabinetEnv(NpEnv):
         cfg = self._cfg
         num_reset = data.shape[0]
 
-        init_dof_pos = self._model.compute_init_dof_pos()
-        init_dof_vel = np.zeros((self._model.num_dof_vel,), dtype=np.float32)
-
-        noise_pos = np.random.uniform(
-            low=-0.125,
-            high=0.125,
-            size=(num_reset, self._model.num_dof_pos),
-        )
-        noise_vel = np.zeros_like(noise_pos, dtype=np.float32)
-
-        dof_pos = np.tile(init_dof_pos, (num_reset, 1)) + noise_pos
-        dof_vel = np.tile(init_dof_vel, (num_reset, 1)) + noise_vel
-
+        # Reset simulation state
         data.reset(self._model)
+        
+        # Set initial joint positions with noise
+        init_dof_pos = self._model.compute_init_dof_pos()
+        
+        # Reduced noise range (0.125 -> 0.05) to prevent unstable initial states
+        noise_arm = np.random.uniform(
+            low=-0.05,
+            high=0.05,
+            size=(num_reset, len(self._robot_dof_ids)),
+        )
+        
+        # Apply noise only to arm joints
+        dof_pos = np.tile(init_dof_pos, (num_reset, 1))
+        dof_pos[:, self._robot_dof_ids] = self._init_joint_pos + noise_arm
+        
+        # Clamp arm joints to limits
+        dof_pos[:, self._robot_dof_ids] = np.clip(
+            dof_pos[:, self._robot_dof_ids],
+            self._joint_limits_low,
+            self._joint_limits_high,
+        )
+        
+        # Set finger positions (open)
+        dof_pos[:, self._finger_dof_ids] = self._init_finger_pos
+        
+        dof_vel = np.zeros_like(dof_pos, dtype=np.float32)
+
         data.set_dof_vel(dof_vel)
         data.set_dof_pos(dof_pos, self._model)
         self._model.forward_kinematic(data)
 
-        self._dof_targets[:] = dof_pos
+        # Initialize position targets to current positions
+        dof_pos_arm = dof_pos[:, self._robot_dof_ids]
+        dof_pos_fingers = dof_pos[:, self._finger_dof_ids]
+        new_dof_targets = np.concatenate([dof_pos_arm, dof_pos_fingers], axis=-1)
 
-        # Initial grasp frames and observations
+        # Compute initial observations
         robot_grasp_pos, robot_grasp_quat, drawer_grasp_pos, drawer_grasp_quat = self._compute_grasp_frames(data)
-        dof_pos_robot = dof_pos[:, self._robot_dof_ids]
-        dof_vel_robot = dof_vel[:, self._robot_dof_ids]
+        
+        dof_vel_arm = dof_vel[:, self._robot_dof_ids]
+        dof_vel_fingers = dof_vel[:, self._finger_dof_ids]
+        dof_pos_robot = np.concatenate([dof_pos_arm, dof_pos_fingers], axis=-1)
+        dof_vel_robot = np.concatenate([dof_vel_arm, dof_vel_fingers], axis=-1)
 
-        if self._joint_limits is not None:
-            low = self._joint_limits[0, self._robot_dof_ids]
-            high = self._joint_limits[1, self._robot_dof_ids]
-        else:
-            low = -np.pi * np.ones_like(self._robot_dof_ids, dtype=np.float32)
-            high = np.pi * np.ones_like(self._robot_dof_ids, dtype=np.float32)
-
-        dof_pos_scaled = 2.0 * (dof_pos_robot - low) / (high - low) - 1.0
+        dof_pos_scaled = 2.0 * (dof_pos_robot - self._all_limits_low) / (self._all_limits_high - self._all_limits_low) - 1.0
         to_target = drawer_grasp_pos - robot_grasp_pos
         drawer_pos = dof_pos[:, self._drawer_dof_id]
         drawer_vel = dof_vel[:, self._drawer_dof_id]
@@ -432,18 +503,15 @@ class FrankaCabinetEnv(NpEnv):
         obs = np.clip(obs, -5.0, 5.0).astype(np.float32)
 
         info = {
-            "last_actions": np.zeros((num_reset, self._robot_dof_ids.shape[0]), dtype=np.float32),
+            "last_actions": np.zeros((num_reset, self._num_arm_joints + 2), dtype=np.float32),
+            "_dof_targets": new_dof_targets,  # Pass via info for correct partial reset handling
             "Reward": {
-                "franka_cabinet": {
-                    "dist_reward": np.zeros((num_reset,), dtype=np.float32),
-                    "rot_reward": np.zeros((num_reset,), dtype=np.float32),
-                    "open_reward": np.zeros((num_reset,), dtype=np.float32),
-                    "action_penalty": np.zeros((num_reset,), dtype=np.float32),
-                    "finger_dist_penalty": np.zeros((num_reset,), dtype=np.float32),
-                }
+                "dist_reward": np.zeros((num_reset,), dtype=np.float32),
+                "rot_reward": np.zeros((num_reset,), dtype=np.float32),
+                "open_reward": np.zeros((num_reset,), dtype=np.float32),
+                "action_penalty": np.zeros((num_reset,), dtype=np.float32),
+                "finger_dist_penalty": np.zeros((num_reset,), dtype=np.float32),
             },
         }
 
         return obs, info
-
-

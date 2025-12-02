@@ -1,0 +1,433 @@
+<?xml version="1.0" ?>
+<!-- 
+Franka Cabinet Environment for MotrixLab
+Franka Panda robot with parallel gripper, adapted for drawer opening task
+Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
+-->
+<mujoco model="franka_cabinet_scene">
+    
+    <compiler angle="radian" autolimits="true"/>
+    
+    <!-- Use implicit integrator for better stability with articulated robots -->
+    <!-- Smaller timestep (0.005) for numerical stability -->
+    <option integrator="implicit" timestep="0.005"/>
+    
+    <!-- Franka Panda defaults -->
+    <!-- Increased armature (0.1 -> 0.5) and damping (1 -> 5) for stability -->
+    <default>
+        <default class="panda">
+            <material specular="0.5" shininess="0.25"/>
+            <joint armature="0.5" damping="5" axis="0 0 1" range="-2.8973 2.8973"/>
+            <general dyntype="none" biastype="affine" ctrlrange="-2.8973 2.8973" forcerange="-87 87"/>
+            <default class="finger">
+                <!-- Add small armature on finger joints for numerical regularization in MotrixSim -->
+                <joint axis="0 1 0" type="slide" range="0 0.04" armature="0.01"/>
+            </default>
+            <default class="visual">
+                <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+            </default>
+            <default class="collision">
+                <geom type="mesh" group="3"/>
+                <default class="fingertip_pad_collision_1">
+                    <geom type="box" size="0.0085 0.004 0.0085" pos="0 0.0055 0.0445"/>
+                </default>
+                <default class="fingertip_pad_collision_2">
+                    <geom type="box" size="0.003 0.002 0.003" pos="0.0055 0.002 0.05"/>
+                </default>
+                <default class="fingertip_pad_collision_3">
+                    <geom type="box" size="0.003 0.002 0.003" pos="-0.0055 0.002 0.05"/>
+                </default>
+                <default class="fingertip_pad_collision_4">
+                    <geom type="box" size="0.003 0.002 0.0035" pos="0.0055 0.002 0.0395"/>
+                </default>
+                <default class="fingertip_pad_collision_5">
+                    <geom type="box" size="0.003 0.002 0.0035" pos="-0.0055 0.002 0.0395"/>
+                </default>
+            </default>
+        </default>
+        
+        <!-- StudyTable defaults (from studyTable_asset.xml) -->
+        <default class="viz_stl_Metal_studyTable">
+            <geom group="1" contype="0" conaffinity="0" type="mesh" material="M_Metal_studyTable"/>
+        </default>
+        <default class="viz_stl_Wood_studyTable">
+            <geom group="1" contype="0" conaffinity="0" type="mesh" material="M_Wood_studyTable"/>
+        </default>
+        <default class="drawer_studyTable">
+            <geom contype="1" conaffinity="1" group="3" rgba="1 0 0 1"/>
+            <joint limited="true" damping="2" frictionloss="5" armature="0.1"/>
+        </default>
+        <default class="body_studyTable">
+            <geom contype="1" conaffinity="1" group="4" rgba="0 1 0 1"/>
+            <joint limited="true" damping="1" frictionloss="0.5" armature=".01"/>
+        </default>
+    </default>
+
+    <asset>
+        <!-- Franka Panda materials -->
+        <material class="panda" name="white" rgba="1 1 1 1"/>
+        <material class="panda" name="off_white" rgba="0.901961 0.921569 0.929412 1"/>
+        <material class="panda" name="black" rgba="0.25 0.25 0.25 1"/>
+        <material class="panda" name="green" rgba="0 1 0 1"/>
+        <material class="panda" name="light_blue" rgba="0.039216 0.541176 0.780392 1"/>
+        
+        <!-- StudyTable materials and textures (from studyTable_asset.xml) -->
+        <texture name="T_Wood_studyTable" type="cube" height="1" width="1" file="assets/studyTable/textures/wood0.png"/>
+        <texture name="T_Metal_studyTable" type="cube" height="1" width="1" file="assets/studyTable/textures/metal0.png"/>
+        <material name="M_Wood_studyTable" texture="T_Wood_studyTable" rgba="0.8 0.8 0.8 1" shininess="0.2" reflectance="0.3" texuniform="false"/>
+        <material name="M_Metal_studyTable" texture="T_Metal_studyTable" texrepeat="3 3" reflectance="0.7" texuniform="false"/>
+        
+        <!-- StudyTable meshes -->
+        <mesh name="studyTable_Main" file="assets/studyTable/meshes/studyTable_Main.stl" scale="0.01 0.01 0.01"/>
+        <mesh name="studyTable_Slide_Wood" file="assets/studyTable/meshes/studyTable_Slide_Wood.stl" scale="0.01 0.01 0.01"/>
+        <mesh name="studyTable_Slide_Handle" file="assets/studyTable/meshes/studyTable_Slide_Handle.stl" scale="0.01 0.01 0.01"/>
+        <mesh name="studyTable_Drawer_Wood" file="assets/studyTable/meshes/studyTable_Drawer_Wood.stl" scale="0.01 0.01 0.01"/>
+        <mesh name="studyTable_Drawer_Handle" file="assets/studyTable/meshes/studyTable_Drawer_Handle.stl" scale="0.01 0.01 0.01"/>
+
+        <!-- Collision meshes -->
+        <mesh name="link0_c" file="assets/franka_panda/link0.stl"/>
+        <mesh name="link1_c" file="assets/franka_panda/link1.stl"/>
+        <mesh name="link2_c" file="assets/franka_panda/link2.stl"/>
+        <mesh name="link3_c" file="assets/franka_panda/link3.stl"/>
+        <mesh name="link4_c" file="assets/franka_panda/link4.stl"/>
+        <mesh name="link5_c0" file="assets/franka_panda/link5_collision_0.obj"/>
+        <mesh name="link5_c1" file="assets/franka_panda/link5_collision_1.obj"/>
+        <mesh name="link5_c2" file="assets/franka_panda/link5_collision_2.obj"/>
+        <mesh name="link6_c" file="assets/franka_panda/link6.stl"/>
+        <mesh name="link7_c" file="assets/franka_panda/link7.stl"/>
+        <mesh name="hand_c" file="assets/franka_panda/hand.stl"/>
+
+        <!-- Visual meshes -->
+        <mesh file="assets/franka_panda/link0_0.obj"/>
+        <mesh file="assets/franka_panda/link0_1.obj"/>
+        <mesh file="assets/franka_panda/link0_2.obj"/>
+        <mesh file="assets/franka_panda/link0_3.obj"/>
+        <mesh file="assets/franka_panda/link0_4.obj"/>
+        <mesh file="assets/franka_panda/link0_5.obj"/>
+        <mesh file="assets/franka_panda/link0_7.obj"/>
+        <mesh file="assets/franka_panda/link0_8.obj"/>
+        <mesh file="assets/franka_panda/link0_9.obj"/>
+        <mesh file="assets/franka_panda/link0_10.obj"/>
+        <mesh file="assets/franka_panda/link0_11.obj"/>
+        <mesh file="assets/franka_panda/link1.obj"/>
+        <mesh file="assets/franka_panda/link2.obj"/>
+        <mesh file="assets/franka_panda/link3_0.obj"/>
+        <mesh file="assets/franka_panda/link3_1.obj"/>
+        <mesh file="assets/franka_panda/link3_2.obj"/>
+        <mesh file="assets/franka_panda/link3_3.obj"/>
+        <mesh file="assets/franka_panda/link4_0.obj"/>
+        <mesh file="assets/franka_panda/link4_1.obj"/>
+        <mesh file="assets/franka_panda/link4_2.obj"/>
+        <mesh file="assets/franka_panda/link4_3.obj"/>
+        <mesh file="assets/franka_panda/link5_0.obj"/>
+        <mesh file="assets/franka_panda/link5_1.obj"/>
+        <mesh file="assets/franka_panda/link5_2.obj"/>
+        <mesh file="assets/franka_panda/link6_0.obj"/>
+        <mesh file="assets/franka_panda/link6_1.obj"/>
+        <mesh file="assets/franka_panda/link6_2.obj"/>
+        <mesh file="assets/franka_panda/link6_3.obj"/>
+        <mesh file="assets/franka_panda/link6_4.obj"/>
+        <mesh file="assets/franka_panda/link6_5.obj"/>
+        <mesh file="assets/franka_panda/link6_6.obj"/>
+        <mesh file="assets/franka_panda/link6_7.obj"/>
+        <mesh file="assets/franka_panda/link6_8.obj"/>
+        <mesh file="assets/franka_panda/link6_9.obj"/>
+        <mesh file="assets/franka_panda/link6_10.obj"/>
+        <mesh file="assets/franka_panda/link6_11.obj"/>
+        <mesh file="assets/franka_panda/link6_12.obj"/>
+        <mesh file="assets/franka_panda/link6_13.obj"/>
+        <mesh file="assets/franka_panda/link6_14.obj"/>
+        <mesh file="assets/franka_panda/link6_15.obj"/>
+        <mesh file="assets/franka_panda/link6_16.obj"/>
+        <mesh file="assets/franka_panda/link7_0.obj"/>
+        <mesh file="assets/franka_panda/link7_1.obj"/>
+        <mesh file="assets/franka_panda/link7_2.obj"/>
+        <mesh file="assets/franka_panda/link7_3.obj"/>
+        <mesh file="assets/franka_panda/link7_4.obj"/>
+        <mesh file="assets/franka_panda/link7_5.obj"/>
+        <mesh file="assets/franka_panda/link7_6.obj"/>
+        <mesh file="assets/franka_panda/link7_7.obj"/>
+        <mesh file="assets/franka_panda/hand_0.obj"/>
+        <mesh file="assets/franka_panda/hand_1.obj"/>
+        <mesh file="assets/franka_panda/hand_2.obj"/>
+        <mesh file="assets/franka_panda/hand_3.obj"/>
+        <mesh file="assets/franka_panda/hand_4.obj"/>
+        <mesh file="assets/franka_panda/finger_0.obj"/>
+        <mesh file="assets/franka_panda/finger_1.obj"/>
+        
+        <!-- Environment textures -->
+        <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+        <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
+            markrgb="0.8 0.8 0.8" width="300" height="300"/>
+        <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+    </asset>
+
+    <!-- Visual options -->
+    <visual>
+        <headlight diffuse="0.3 0.3 0.3" ambient="0.2 0.2 0.2" specular="0 0 0"/>
+        <rgba haze="0.15 0.25 0.35 1"/>
+        <global azimuth="-120" elevation="-20"/>
+        <quality shadowsize="0"/>
+    </visual>
+
+    <worldbody>
+        <!-- Ground plane -->
+        <geom name="floor" size="3 3 0.05" type="plane" material="groundplane"/>
+        
+        <!-- Lights -->
+        <light name="top" pos="0 0 2" mode="trackcom"/>
+        <light pos="0 0 4.5" dir="0 0 -1" directional="true"/>
+        <light pos="0 4.5 0.6" dir="0 -1 0" directional="true"/>
+        <light pos="0 -4.5 0.6" dir="0 1 0" directional="true"/>
+        
+        <!-- Cameras (adjusted for new layout: robot at (1,0,0), table at (-0.06,0,0)) -->
+        <camera name="side_camera" pos="0.5 -1.0 0.8" xyaxes="1 0 0 0 0.5 1" mode="fixed" fovy="58"/>
+        <camera name="front_camera" pos="0.5 1.0 0.8" xyaxes="-1 0 0 0 0.5 1" mode="fixed" fovy="58"/>
+        <camera name="top_camera" pos="0.5 0 2.0" xyaxes="0 -1 0 1 0 0" mode="fixed" fovy="58"/>
+        
+        <!-- Study Table with Drawer (positioned to match Isaac Lab layout) -->
+        <!-- Robot at (1,0,0), table rotated -90° so drawer pulls toward +X (toward robot) -->
+        <!-- After rotation: local -Y becomes world +X (drawer pulls toward robot) -->
+        <!-- Handle at table local (0, -0.36, 0.665) -> world (0.36, 0, 0.665) relative to table -->
+        <!-- Table at (-0.06, 0, 0) puts handle at (0.3, 0, 0.665), matching Isaac Lab -->
+        <body name="study_table" pos="-0.06 0 0" euler="0 0 -1.5708">
+            <!-- studyTable_Main -->
+            <body name="studyTable_Main" pos="0 0 0" childclass="body_studyTable">
+                <geom class="viz_stl_Wood_studyTable" type="mesh" mesh="studyTable_Main" euler="-1.57 0 3.14"/>
+                <geom type="box" size=".6 .275 .025" pos="0 0 0.735" rgba="0.8 0.9 0.7 1.0" mass="40" />
+                <geom type="box" size="0.17 0.26 .05" pos="0.42 0 0.66" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.17 0.26 .05" pos="-0.42 0 0.66" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.025 0.025 0.305" pos="-0.565 0.235 0.305" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.025 0.025 0.305" pos="-0.565 -0.235 0.305" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.025 0.025 0.305" pos="0.565 0.235 0.305" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.025 0.025 0.305" pos="0.565 -0.235 0.305" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.6 0.01 0.175" pos="0 0.265 0.935" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.6 0.11 0.01" pos="0 0.165 1.1" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.01 0.11 0.175" pos="0.59 .165 .935" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.01 0.11 0.175" pos="-0.59 .165 .935" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size="0.01 0.11 0.175" pos="0 .165 .935" rgba="0.8 0.9 0.7 1.0"/>
+            </body>
+
+            <!-- StudyTable_Drawer - the main target for the task -->
+            <body name="studyTable_Drawer" pos="0 0 0.655" childclass="drawer_studyTable">
+                <geom class="viz_stl_Wood_studyTable" type="mesh" mesh="studyTable_Drawer_Wood" euler="-1.57 0 3.14"/>
+                <geom class="viz_stl_Metal_studyTable" type="mesh" mesh="studyTable_Drawer_Handle" euler="-1.57 0 3.14"/>
+                <geom type="box" size=".24 .26 .01" pos="0 0 -0.04" rgba="0.8 0.9 0.7 1.0" mass="2" />
+                <geom type="box" size=".24 .01 .05" pos="0 .25 0" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size=".24 .01 .05" pos="0 -.25 0" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size=".01 .26 .05" pos="-.23 0 0" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="box" size=".01 .26 .05" pos=".23 0 0" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="capsule" size=".014 .045" pos=".08203 -.315 .01" euler="1.57 0 0" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="capsule" size=".014 .045" pos="-.08203 -.315 .01" euler="1.57 0 0" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="capsule" size=".014 .08" pos="0 -.36 .01" euler="0 1.57 0" rgba="0.8 0.9 0.7 1.0" />
+                <!-- Drawer handle site for grasp target -->
+                <site name="drawer_handle" type="sphere" size=".02" pos="0 -.36 .01" rgba="1 0 0 0.5"/>
+                <joint name="drawer_joint" type="slide" pos="0 0 0" axis="0 1 0" limited="true" range="-0.48 0" />
+            </body>
+
+            <!-- StudyTable_Slide -->
+            <body name="studyTable_Slide" pos="-0.3 0.04 0.935" childclass="drawer_studyTable">
+                <geom class="viz_stl_Wood_studyTable" type="mesh" mesh="studyTable_Slide_Wood" euler="-1.57 0 3.14"/>
+                <geom class="viz_stl_Metal_studyTable" type="mesh" mesh="studyTable_Slide_Handle" euler="-1.57 0 3.14"/>
+                <geom type="box" size=".3 .01 .175" pos="0 0 0" rgba="0.8 0.9 0.7 1.0" mass="1" />
+                <geom type="capsule" size=".014 .042" pos="0 -.065 .08302" euler="1.57 0 0" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="capsule" size=".014 .042" pos="0 -.065 -.08302" euler="1.57 0 0" rgba="0.8 0.9 0.7 1.0" />
+                <geom type="capsule" size=".014 .08" pos="0 -.11 0" euler="0 0 0" rgba="0.8 0.9 0.7 1.0" />
+                <site name='slide_handle' type='sphere' size='.01' pos='0 -.11 0'/>
+                <joint name="slide_joint" type="slide" pos="0 0 0" axis="1 0 0" limited="true" range="0 .6" />
+            </body>
+        </body>
+
+        <!-- Franka Panda Robot Arm (positioned to match Isaac Lab: robot at (1,0,0)) -->
+        <body name="link0" pos="1.0 0.0 0.0" childclass="panda">
+            <inertial mass="0.629769" pos="-0.041018 -0.00014 0.049974"
+                fullinertia="0.00315 0.00388 0.004285 8.2904e-7 0.00015 8.2299e-6"/>
+            <geom mesh="link0_0" material="off_white" class="visual"/>
+            <geom mesh="link0_1" material="black" class="visual"/>
+            <geom mesh="link0_2" material="off_white" class="visual"/>
+            <geom mesh="link0_3" material="black" class="visual"/>
+            <geom mesh="link0_4" material="off_white" class="visual"/>
+            <geom mesh="link0_5" material="black" class="visual"/>
+            <geom mesh="link0_7" material="white" class="visual"/>
+            <geom mesh="link0_8" material="white" class="visual"/>
+            <geom mesh="link0_9" material="black" class="visual"/>
+            <geom mesh="link0_10" material="off_white" class="visual"/>
+            <geom mesh="link0_11" material="white" class="visual"/>
+            <geom mesh="link0_c" class="collision"/>
+            
+            <body name="link1" pos="0 0 0.333">
+                <inertial mass="4.970684" pos="0.003875 0.002081 -0.04762"
+                    fullinertia="0.70337 0.70661 0.0091170 -0.00013900 0.0067720 0.019169"/>
+                <joint name="panda_joint1"/>
+                <geom material="white" mesh="link1" class="visual"/>
+                <geom mesh="link1_c" class="collision"/>
+                
+                <body name="link2" quat="1 -1 0 0">
+                    <inertial mass="0.646926" pos="-0.003141 -0.02872 0.003495"
+                        fullinertia="0.0079620 2.8110e-2 2.5995e-2 -3.925e-3 1.0254e-2 7.04e-4"/>
+                    <joint name="panda_joint2" range="-1.7628 1.7628"/>
+                    <geom material="white" mesh="link2" class="visual"/>
+                    <geom mesh="link2_c" class="collision"/>
+                    
+                    <body name="link3" pos="0 -0.316 0" quat="1 1 0 0">
+                        <joint name="panda_joint3"/>
+                        <inertial mass="3.228604" pos="2.7518e-2 3.9252e-2 -6.6502e-2"
+                            fullinertia="3.7242e-2 3.6155e-2 1.083e-2 -4.761e-3 -1.1396e-2 -1.2805e-2"/>
+                        <geom mesh="link3_0" material="white" class="visual"/>
+                        <geom mesh="link3_1" material="white" class="visual"/>
+                        <geom mesh="link3_2" material="white" class="visual"/>
+                        <geom mesh="link3_3" material="black" class="visual"/>
+                        <geom mesh="link3_c" class="collision"/>
+                        
+                        <body name="link4" pos="0.0825 0 0" quat="1 1 0 0">
+                            <inertial mass="3.587895" pos="-5.317e-2 1.04419e-1 2.7454e-2"
+                                fullinertia="2.5853e-2 1.9552e-2 2.8323e-2 7.796e-3 -1.332e-3 8.641e-3"/>
+                            <joint name="panda_joint4" range="-3.0718 -0.0698"/>
+                            <geom mesh="link4_0" material="white" class="visual"/>
+                            <geom mesh="link4_1" material="white" class="visual"/>
+                            <geom mesh="link4_2" material="black" class="visual"/>
+                            <geom mesh="link4_3" material="white" class="visual"/>
+                            <geom mesh="link4_c" class="collision"/>
+                            
+                            <body name="link5" pos="-0.0825 0.384 0" quat="1 -1 0 0">
+                                <inertial mass="1.225946" pos="-1.1953e-2 4.1065e-2 -3.8437e-2"
+                                    fullinertia="3.5549e-2 2.9474e-2 8.627e-3 -2.117e-3 -4.037e-3 2.29e-4"/>
+                                <joint name="panda_joint5"/>
+                                <geom mesh="link5_0" material="black" class="visual"/>
+                                <geom mesh="link5_1" material="white" class="visual"/>
+                                <geom mesh="link5_2" material="white" class="visual"/>
+                                <geom mesh="link5_c0" class="collision"/>
+                                <geom mesh="link5_c1" class="collision"/>
+                                <geom mesh="link5_c2" class="collision"/>
+                                
+                                <body name="link6" quat="1 1 0 0">
+                                    <inertial mass="1.666555" pos="6.0149e-2 -1.4117e-2 -1.0517e-2"
+                                        fullinertia="1.964e-3 4.354e-3 5.433e-3 1.09e-4 -1.158e-3 3.41e-4"/>
+                                    <joint name="panda_joint6" range="-0.0175 3.7525"/>
+                                    <geom mesh="link6_0" material="off_white" class="visual"/>
+                                    <geom mesh="link6_1" material="white" class="visual"/>
+                                    <geom mesh="link6_2" material="black" class="visual"/>
+                                    <geom mesh="link6_3" material="white" class="visual"/>
+                                    <geom mesh="link6_4" material="white" class="visual"/>
+                                    <geom mesh="link6_5" material="white" class="visual"/>
+                                    <geom mesh="link6_6" material="white" class="visual"/>
+                                    <geom mesh="link6_7" material="light_blue" class="visual"/>
+                                    <geom mesh="link6_8" material="light_blue" class="visual"/>
+                                    <geom mesh="link6_9" material="black" class="visual"/>
+                                    <geom mesh="link6_10" material="black" class="visual"/>
+                                    <geom mesh="link6_11" material="white" class="visual"/>
+                                    <geom mesh="link6_12" material="green" class="visual"/>
+                                    <geom mesh="link6_13" material="white" class="visual"/>
+                                    <geom mesh="link6_14" material="black" class="visual"/>
+                                    <geom mesh="link6_15" material="black" class="visual"/>
+                                    <geom mesh="link6_16" material="white" class="visual"/>
+                                    <geom mesh="link6_c" class="collision"/>
+                                    
+                                    <body name="link7" pos="0.088 0 0" quat="1 1 0 0">
+                                        <inertial mass="7.35522e-01" pos="1.0517e-2 -4.252e-3 6.1597e-2"
+                                            fullinertia="1.2516e-2 1.0027e-2 4.815e-3 -4.28e-4 -1.196e-3 -7.41e-4"/>
+                                        <joint name="panda_joint7"/>
+                                        <geom mesh="link7_0" material="white" class="visual"/>
+                                        <geom mesh="link7_1" material="black" class="visual"/>
+                                        <geom mesh="link7_2" material="black" class="visual"/>
+                                        <geom mesh="link7_3" material="black" class="visual"/>
+                                        <geom mesh="link7_4" material="black" class="visual"/>
+                                        <geom mesh="link7_5" material="black" class="visual"/>
+                                        <geom mesh="link7_6" material="black" class="visual"/>
+                                        <geom mesh="link7_7" material="white" class="visual"/>
+                                        <geom mesh="link7_c" class="collision"/>
+                                        
+                                        <!-- Hand (gripper base) -->
+                                        <body name="hand" pos="0 0 0.107" quat="0.9238795 0 0 -0.3826834">
+                                            <inertial mass="0.73" pos="-0.01 0 0.03" diaginertia="0.001 0.0025 0.0017"/>
+                                            <geom mesh="hand_0" material="off_white" class="visual"/>
+                                            <geom mesh="hand_1" material="black" class="visual"/>
+                                            <geom mesh="hand_2" material="black" class="visual"/>
+                                            <geom mesh="hand_3" material="white" class="visual"/>
+                                            <geom mesh="hand_4" material="off_white" class="visual"/>
+                                            <geom mesh="hand_c" class="collision"/>
+                                            
+                                            <!-- End effector site -->
+                                            <site name="eef" rgba="1 0 0 0.5" pos="0 0 0.1034" size="0.01" group="1"/>
+                                            
+                                            <!-- Left finger -->
+                                            <body name="left_finger" pos="0 0 0.0584">
+                                                <!-- Increased finger inertia for better numerical stability in MotrixSim
+                                                     (original diaginertia: 2.375e-6 2.375e-6 7.5e-7) -->
+                                                <inertial mass="0.02" pos="0 0 0" diaginertia="2.375e-4 2.375e-4 7.5e-5"/>
+                                                <joint name="panda_finger_joint1" class="finger"/>
+                                                <geom mesh="finger_0" material="off_white" class="visual"/>
+                                                <geom mesh="finger_1" material="black" class="visual"/>
+                                                <geom mesh="finger_0" class="collision"/>
+                                                <geom class="fingertip_pad_collision_1"/>
+                                                <geom class="fingertip_pad_collision_2"/>
+                                                <geom class="fingertip_pad_collision_3"/>
+                                                <geom class="fingertip_pad_collision_4"/>
+                                                <geom class="fingertip_pad_collision_5"/>
+                                            </body>
+                                            
+                                            <!-- Right finger -->
+                                            <body name="right_finger" pos="0 0 0.0584" quat="0 0 0 1">
+                                                <!-- Increased finger inertia for better numerical stability in MotrixSim
+                                                     (original diaginertia: 2.375e-6 2.375e-6 7.5e-7) -->
+                                                <inertial mass="0.02" pos="0 0 0" diaginertia="2.375e-4 2.375e-4 7.5e-5"/>
+                                                <joint name="panda_finger_joint2" class="finger"/>
+                                                <geom mesh="finger_0" material="off_white" class="visual"/>
+                                                <geom mesh="finger_1" material="black" class="visual"/>
+                                                <geom mesh="finger_0" class="collision"/>
+                                                <geom class="fingertip_pad_collision_1"/>
+                                                <geom class="fingertip_pad_collision_2"/>
+                                                <geom class="fingertip_pad_collision_3"/>
+                                                <geom class="fingertip_pad_collision_4"/>
+                                                <geom class="fingertip_pad_collision_5"/>
+                                            </body>
+                                        </body>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+
+    <!-- Gripper finger tendon for synchronized control -->
+    <tendon>
+        <fixed name="split">
+            <joint joint="panda_finger_joint1" coef="0.5"/>
+            <joint joint="panda_finger_joint2" coef="0.5"/>
+        </fixed>
+    </tendon>
+
+    <!-- Gripper equality constraint
+         Note: The panda fingers are already coupled via the 'split' tendon above.
+         To avoid redundant constraints that can make the inertia matrix non-positive definite
+         in MotrixSim's impulse solver, we intentionally remove the extra joint equality here. -->
+
+    <!-- Actuators (9 DOF: 7 arm + 1 coupled gripper via tendon)
+         Using lower gains to match Isaac Lab's ImplicitActuator (stiffness=80, damping=4)
+         This prevents instability from high-gain position control -->
+    <actuator>
+        <!-- Shoulder joints (1-4): effort_limit=87, stiffness=80, damping=4 -->
+        <general class="panda" name="actuator1" joint="panda_joint1" gainprm="80" biasprm="0 -80 -4" forcerange="-87 87"/>
+        <general class="panda" name="actuator2" joint="panda_joint2" gainprm="80" biasprm="0 -80 -4" forcerange="-87 87"
+            ctrlrange="-1.7628 1.7628"/>
+        <general class="panda" name="actuator3" joint="panda_joint3" gainprm="80" biasprm="0 -80 -4" forcerange="-87 87"/>
+        <general class="panda" name="actuator4" joint="panda_joint4" gainprm="80" biasprm="0 -80 -4" forcerange="-87 87"
+            ctrlrange="-3.0718 -0.0698"/>
+        <!-- Forearm joints (5-7): effort_limit=12, stiffness=80, damping=4 -->
+        <general class="panda" name="actuator5" joint="panda_joint5" gainprm="80" biasprm="0 -80 -4" forcerange="-12 12"/>
+        <general class="panda" name="actuator6" joint="panda_joint6" gainprm="80" biasprm="0 -80 -4" forcerange="-12 12"
+            ctrlrange="-0.0175 3.7525"/>
+        <general class="panda" name="actuator7" joint="panda_joint7" gainprm="80" biasprm="0 -80 -4" forcerange="-12 12"/>
+        <!-- Gripper actuator via tendon (higher stiffness for grip, matching Isaac Lab stiffness=2000) -->
+        <general class="panda" name="actuator8" tendon="split" forcerange="-200 200" ctrlrange="0 255"
+            gainprm="0.01568627451 0 0" biasprm="0 -100 -10"/>
+    </actuator>
+
+    <!-- Initial state keyframe (from Isaac Lab FrankaCabinetEnv - positioned near drawer) -->
+    <keyframe>
+        <key name="home" qpos="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 0.035 0.035 0 0" ctrl="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 255"/>
+    </keyframe>
+</mujoco>

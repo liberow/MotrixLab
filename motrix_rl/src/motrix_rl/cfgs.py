@@ -96,3 +96,24 @@ class locomotion:
         learning_epochs: int = 5
         mini_batches: int = 3
         learning_rate: float = 3e-4
+
+
+class manipulation:
+    @rlcfg("franka_cabinet")
+    @dataclass
+    class FrankaCabinetPPO(PPOCfg):
+        """
+        Franka-Cabinet (Drawer Opening) RL config.
+        """
+
+        seed: int = 42
+        max_env_steps: int = 1024 * 30000  # ~30M steps
+        num_envs: int = 2048
+
+        # Override PPO configuration
+        rollouts: int = 24
+        policy_hidden_layer_sizes: tuple[int, ...] = (256, 128, 64)
+        value_hidden_layer_sizes: tuple[int, ...] = (256, 128, 64)
+        learning_epochs: int = 5
+        mini_batches: int = 4
+        learning_rate: float = 3e-4

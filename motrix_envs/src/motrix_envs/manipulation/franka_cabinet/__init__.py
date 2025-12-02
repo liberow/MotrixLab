@@ -14,11 +14,19 @@
 # limitations under the License.
 # ==============================================================================
 """
-Franka-Cabinet manipulation task for MotrixLab.
+Franka-Cabinet (Drawer Opening) manipulation task for MotrixLab.
 
-This environment mirrors the high-level structure of the Isaac Lab
-direct Franka-Cabinet environment, but is implemented on top of
-MotrixSim and the MotrixLab NpEnv API.
+This environment uses Franka Panda robot (9 DOF: 7 arm + 2 fingers) to open
+a drawer on a study table, matching Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
+environment. It is implemented on top of MotrixSim and the MotrixLab NpEnv API.
+
+The scene includes:
+- Franka Panda 9-DOF robot arm with parallel gripper
+- Study table with drawer (the task target)
+- Optional mug (asset available for future pick-and-place tasks)
+
+Note: The drawer moves in negative Y direction (range [-0.48, 0]), so 
+the reward logic is inverted compared to Isaac Lab's original implementation.
 """
 
 from .cfg import FrankaCabinetEnvCfg  # noqa: F401
