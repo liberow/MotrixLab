@@ -58,10 +58,12 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
             <geom group="3"/>
         </default>
         <default class="door">
-            <joint type="hinge" damping="0.05" frictionloss="0.025" armature="0.01"/>
+            <!-- Increased damping (0.05->5.0) and friction (0.025->0.5) to prevent free swinging -->
+            <joint type="hinge" damping="5.0" frictionloss="0.5" armature="0.01"/>
         </default>
         <default class="drawer">
-            <joint type="slide" damping="0.01" frictionloss="0.01" armature="0.01"/>
+            <!-- Increased damping (0.01->2.0) and friction (0.01->0.2) to prevent drift -->
+            <joint type="slide" damping="2.0" frictionloss="0.2" armature="0.01"/>
         </default>
     </default>
 
