@@ -52,6 +52,9 @@ class FrankaCabinetEnvCfg(EnvCfg):
     sim_dt: float = 0.005  # 200 Hz physics
     ctrl_dt: float = 1.0 / 60.0  # 60 Hz control
     max_episode_seconds: float = 8.3333  # ~500 control steps
+    
+    # Environment spacing for parallel environments (matching Isaac Lab: 3.0)
+    env_spacing: float = 3.0
 
     # --- RL hyper-parameters (from Isaac Lab) -------------------------------
     # Note: Isaac Lab uses action_scale = 7.5; we further reduce it for MotrixSim to

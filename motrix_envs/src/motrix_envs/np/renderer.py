@@ -29,7 +29,8 @@ class NpRenderer:
     def __init__(self, env: NpEnv):
         num_envs = env.num_envs
         num_envs = 1 if num_envs is None else num_envs
-        spacing = 1.0
+        # Use env_spacing from config if available, otherwise default to 1.0
+        spacing = getattr(env.cfg, 'env_spacing', 1.0)
         cols = int(np.ceil(np.sqrt(num_envs)))
         offsets = []
         for i in range(num_envs):

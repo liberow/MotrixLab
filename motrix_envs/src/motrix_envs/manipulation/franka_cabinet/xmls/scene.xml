@@ -51,11 +51,11 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
             <joint damping="0.5" armature="0.01"/>
             <geom friction="1.0 0.005 0.0001" condim="3"/>
         </default>
-        <default class="cabinet_visual">
-            <geom contype="0" conaffinity="0" group="1"/>
-        </default>
         <default class="cabinet_collision">
-            <geom group="3"/>
+            <!-- Cabinet geoms are currently only defined as collision shapes; to make the
+                 cabinet visible in the default viewer, render them in group 2 (same as
+                 the robot visual geoms). -->
+            <geom group="2"/>
         </default>
         <default class="door">
             <!-- Increased damping (0.05->5.0) and friction (0.025->0.5) to prevent free swinging -->
@@ -412,8 +412,11 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
             <!-- This is the drawer referenced by cabinet_dof_pos[:, 3] in Isaac Lab -->
             <body name="drawer_top" pos="0.0515 0 0.3172">
                 <inertial mass="0.5" pos="0.15 0 0" diaginertia="0.005 0.005 0.005"/>
+                <!-- Increase damping / friction for top drawer as well so it does not
+                     spontaneously slide out under small numerical/contact perturbations. -->
                 <joint name="drawer_top_joint" type="slide" axis="1 0 0" 
-                       range="0 0.4" class="drawer"/>
+                       range="0 0.4" class="drawer"
+                       damping="10.0" frictionloss="5.0" armature="0.05"/>
                 <!-- Drawer body collision (convex decomposition) -->
                 <geom name="drawer_top_collision0" type="mesh" mesh="drawer_convexdecomposition0" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
                 <geom name="drawer_top_collision1" type="mesh" mesh="drawer_convexdecomposition1" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
@@ -434,8 +437,12 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
             <!-- Joint index: 3 (drawer_bottom_joint) -->
             <body name="drawer_bottom" pos="0.0515 0 0.18795">
                 <inertial mass="0.5" pos="0.15 0 0" diaginertia="0.005 0.005 0.005"/>
+                <!-- Make bottom drawer much stiffer so it visually stays still while the
+                     top drawer is pulled out by the robot. Override damping and friction
+                     here instead of changing the shared 'drawer' default. -->
                 <joint name="drawer_bottom_joint" type="slide" axis="1 0 0"
-                       range="0 0.4" class="drawer"/>
+                       range="0 0.4" class="drawer"
+                       damping="10.0" frictionloss="5.0" armature="0.05"/>
                 <!-- Drawer body collision -->
                 <geom name="drawer_bottom_collision" type="mesh" mesh="drawer_convexdecomposition" 
                       rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>

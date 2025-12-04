@@ -112,6 +112,16 @@ class FrankaCabinetEnv(NpEnv):
         # Get drawer joint DOF index
         self._drawer_dof_id = model.get_joint(cfg.drawer_joint_name).dof_pos_index
         
+        # Get all cabinet joint DOF indices (4 joints: 2 doors + 2 drawers)
+        # These must all be reset to 0 (closed) at the start of each episode
+        cabinet_joint_names = [
+            "door_left_joint", "door_right_joint",
+            "drawer_bottom_joint", "drawer_top_joint"
+        ]
+        self._cabinet_dof_ids = np.array([
+            model.get_joint(name).dof_pos_index for name in cabinet_joint_names
+        ], dtype=np.int64)
+        
         # Get actuator indices
         self._arm_actuator_ids = np.array([
             model.get_actuator(name).index for name in cfg.arm_actuator_names
@@ -465,6 +475,10 @@ class FrankaCabinetEnv(NpEnv):
         
         # Set finger positions (open)
         dof_pos[:, self._finger_dof_ids] = self._init_finger_pos
+        
+        # Reset cabinet joints to closed state (0)
+        # This matches Isaac Lab's _reset_idx: zeros for all cabinet joints
+        dof_pos[:, self._cabinet_dof_ids] = 0.0
         
         dof_vel = np.zeros_like(dof_pos, dtype=np.float32)
 

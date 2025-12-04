@@ -34,6 +34,15 @@ from . import basic, locomotion, manipulation  # noqa: F401
 
 3. [env logitc](MotrixLab/motrix_envs/src/motrix_envs/manipulation/franka_cabinet)
 
+4. 环境间距问题
+
+配置硬编码为 1.0, 修改为可以从每个task 的配置中修改
+
+```python 
+# MotrixLab/motrix_envs/src/motrix_envs/np/renderer.py
+spacing = getattr(env.cfg, 'env_spacing', 1.0)
+```
+
 
 ## 使用指南
 
@@ -52,6 +61,9 @@ uv run scripts/train.py --env franka_cabinet
 
 # 使用torch
 uv run scripts/train.py --env franka_cabinet --train-backend=torch
+
+# 指定数量
+uv run scripts/train.py --env franka_cabinet --render --num-envs=4
 ```
 
 训练结果会保存在 `runs/{env-name}/` 目录下。
