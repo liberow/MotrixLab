@@ -56,7 +56,7 @@ class FrankaCabinetEnvCfg(EnvCfg):
     # --- RL hyper-parameters (from Isaac Lab) -------------------------------
     # Note: Isaac Lab uses action_scale = 7.5; we further reduce it for MotrixSim to
     # improve numerical stability under our MuJoCo-style dynamics model.
-    action_scale: float = 1.0
+    action_scale: float = 0.01
     dof_velocity_scale: float = 0.1
 
     dist_reward_scale: float = 1.5

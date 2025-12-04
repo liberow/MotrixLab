@@ -20,8 +20,8 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
             <joint armature="0.5" damping="5" axis="0 0 1" range="-2.8973 2.8973"/>
             <general dyntype="none" biastype="affine" ctrlrange="-2.8973 2.8973" forcerange="-87 87"/>
             <default class="finger">
-                <!-- Add small armature on finger joints for numerical regularization in MotrixSim -->
-                <joint axis="0 1 0" type="slide" range="0 0.04" armature="0.01"/>
+                <!-- Increase finger joint armature to further regularize inertia matrix in MotrixSim -->
+                <joint axis="0 1 0" type="slide" range="0 0.04" armature="0.05"/>
             </default>
             <default class="visual">
                 <geom type="mesh" contype="0" conaffinity="0" group="2"/>
@@ -80,21 +80,27 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
         <material name="cabinet_grey" rgba="0.6 0.6 0.6 1"/>
         <material name="cabinet_front" rgba="0.4 0.4 0.4 1"/>
         
-        <!-- Sektion Cabinet meshes -->
-        <mesh name="sektion" file="assets/sektion_cabinet/sektion.obj"/>
-        <mesh name="sektion_collision" file="assets/sektion_cabinet/sektion_convexdecomposition.obj"/>
-        <mesh name="drawer" file="assets/sektion_cabinet/drawer.obj"/>
-        <mesh name="drawer_collision" file="assets/sektion_cabinet/drawer_convexdecomposition.obj"/>
-        <mesh name="drawer_handle" file="assets/sektion_cabinet/drawer_handle.obj"/>
-        <mesh name="drawer_handle_collision" file="assets/sektion_cabinet/drawer_handle_convexdecomposition.obj"/>
-        <mesh name="door_left" file="assets/sektion_cabinet/door_left.obj"/>
-        <mesh name="door_left_collision" file="assets/sektion_cabinet/door_left.stl"/>
-        <mesh name="door_left_nob" file="assets/sektion_cabinet/door_left_nob.obj"/>
-        <mesh name="door_left_nob_collision" file="assets/sektion_cabinet/door_left_nob.stl"/>
-        <mesh name="door_right" file="assets/sektion_cabinet/door_right.obj"/>
-        <mesh name="door_right_collision" file="assets/sektion_cabinet/door_right.stl"/>
-        <mesh name="door_right_nob" file="assets/sektion_cabinet/door_right_nob.obj"/>
-        <mesh name="door_right_nob_collision" file="assets/sektion_cabinet/door_right_nob.stl"/>
+        <!-- Sektion Cabinet 2 meshes (convex decomposition) -->
+        <mesh name="sektion_convexdecomposition0" file="assets/sektion_cabinet/sektion_convexdecomposition0.obj"/>
+        <mesh name="sektion_convexdecomposition1" file="assets/sektion_cabinet/sektion_convexdecomposition1.obj"/>
+        <mesh name="sektion_convexdecomposition2" file="assets/sektion_cabinet/sektion_convexdecomposition2.obj"/>
+        <mesh name="sektion_convexdecomposition3" file="assets/sektion_cabinet/sektion_convexdecomposition3.obj"/>
+        <mesh name="sektion_convexdecomposition4" file="assets/sektion_cabinet/sektion_convexdecomposition4.obj"/>
+        <mesh name="sektion_convexdecomposition5" file="assets/sektion_cabinet/sektion_convexdecomposition5.obj"/>
+        <mesh name="sektion_convexdecomposition6" file="assets/sektion_cabinet/sektion_convexdecomposition6.obj"/>
+        <mesh name="drawer_convexdecomposition0" file="assets/sektion_cabinet/drawer_convexdecomposition0.obj"/>
+        <mesh name="drawer_convexdecomposition1" file="assets/sektion_cabinet/drawer_convexdecomposition1.obj"/>
+        <mesh name="drawer_convexdecomposition2" file="assets/sektion_cabinet/drawer_convexdecomposition2.obj"/>
+        <mesh name="drawer_convexdecomposition3" file="assets/sektion_cabinet/drawer_convexdecomposition3.obj"/>
+        <mesh name="drawer_convexdecomposition4" file="assets/sektion_cabinet/drawer_convexdecomposition4.obj"/>
+        <mesh name="drawer_convexdecomposition5" file="assets/sektion_cabinet/drawer_convexdecomposition5.obj"/>
+        <mesh name="drawer_convexdecomposition6" file="assets/sektion_cabinet/drawer_convexdecomposition6.obj"/>
+        <mesh name="drawer_handle_convexdecomposition" file="assets/sektion_cabinet/drawer_handle_convexdecomposition.obj"/>
+        <mesh name="drawer_convexdecomposition" file="assets/sektion_cabinet/drawer_convexdecomposition.obj"/>
+        <mesh name="door_right" file="assets/sektion_cabinet/door_right.stl"/>
+        <mesh name="door_right_nob" file="assets/sektion_cabinet/door_right_nob.stl"/>
+        <mesh name="door_left" file="assets/sektion_cabinet/door_left.stl"/>
+        <mesh name="door_left_nob" file="assets/sektion_cabinet/door_left_nob.stl"/>
 
         <!-- Collision meshes -->
         <mesh name="link0_c" file="assets/franka_panda/link0.stl"/>
@@ -315,7 +321,8 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
                                             
                                             <!-- Left finger -->
                                             <body name="left_finger" pos="0 0 0.0584">
-                                                <inertial mass="0.02" pos="0 0 0" diaginertia="2.375e-4 2.375e-4 7.5e-5"/>
+                                                <!-- Increase finger inertia (×10) to avoid near-singular inertia matrices -->
+                                                <inertial mass="0.02" pos="0 0 0" diaginertia="2.375e-3 2.375e-3 7.5e-4"/>
                                                 <joint name="panda_finger_joint1" class="finger"/>
                                                 <geom mesh="finger_0" material="off_white" class="visual"/>
                                                 <geom mesh="finger_1" material="black" class="visual"/>
@@ -329,7 +336,8 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
                                             
                                             <!-- Right finger -->
                                             <body name="right_finger" pos="0 0 0.0584" quat="0 0 0 1">
-                                                <inertial mass="0.02" pos="0 0 0" diaginertia="2.375e-4 2.375e-4 7.5e-5"/>
+                                                <!-- Increase finger inertia (×10) to avoid near-singular inertia matrices -->
+                                                <inertial mass="0.02" pos="0 0 0" diaginertia="2.375e-3 2.375e-3 7.5e-4"/>
                                                 <joint name="panda_finger_joint2" class="finger"/>
                                                 <geom mesh="finger_0" material="off_white" class="visual"/>
                                                 <geom mesh="finger_1" material="black" class="visual"/>
@@ -351,115 +359,91 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
         </body>
         
         <!-- ================================================================== -->
-        <!-- Sektion Cabinet (4 DOF: 2 doors + 2 drawers)                       -->
+        <!-- Sektion Cabinet 2 (4 DOF: 2 doors + 2 drawers)                     -->
         <!-- Cabinet at (0, 0, 0.4), Robot at (1, 0, 0)                         -->
         <!-- Drawer opens in +X direction toward the robot                      -->
-        <!-- Joint order: door_left[9], door_right[10], drawer_bottom[11], drawer_top[12] -->
+        <!-- Joint order: door_right[9], door_left[10], drawer_top[11], drawer_bottom[12] -->
+        <!-- Using convex decomposition meshes for better collision detection   -->
         <!-- ================================================================== -->
         <body name="sektion" pos="0 0 0.4" childclass="cabinet">
-            <!-- Cabinet body visual -->
-            <geom name="sektion_visual" type="mesh" mesh="sektion" 
-                  material="cabinet_white" class="cabinet_visual"/>
-            <!-- Cabinet body collision -->
-            <geom name="sektion_collision" type="mesh" mesh="sektion_collision" 
-                  class="cabinet_collision"/>
-            
-            <!-- ==================== DOOR LEFT ==================== -->
-            <!-- Joint index: 0 (door_left_joint) -->
-            <body name="door_left_link" pos="0.3162 -0.3757 -0.12973">
-                <inertial mass="1.0" pos="0 0.18 0" diaginertia="0.01 0.01 0.01"/>
-                <joint name="door_left_joint" type="hinge" axis="0 0 1"
-                       range="-1.57 0" class="door"/>
-                <!-- Door visual -->
-                <geom name="door_left_visual" type="mesh" mesh="door_left"
-                      pos="0 0.184706 0" material="cabinet_front" class="cabinet_visual"/>
-                <!-- Door collision -->
-                <geom name="door_left_collision" type="mesh" mesh="door_left_collision"
-                      pos="0 0.184706 0" class="cabinet_collision"/>
-                <!-- Door knob -->
-                <body name="door_left_nob_link" pos="0 0 0">
-                    <inertial mass="0.1" pos="0 0.18 0" diaginertia="0.001 0.001 0.001"/>
-                    <geom name="door_left_nob_visual" type="mesh" mesh="door_left_nob"
-                          pos="0 0.184706 0" material="cabinet_grey" class="cabinet_visual"/>
-                    <geom name="door_left_nob_collision" type="mesh" mesh="door_left_nob_collision"
-                          pos="0 0.184706 0" class="cabinet_collision"/>
-                    <site name="door_left_handle" type="sphere" size="0.015"
-                          pos="0.02 0.02 0" rgba="0 0 1 0.5"/>
-                </body>
-            </body>
+            <!-- Cabinet body collision (convex decomposition) -->
+            <geom name="sektion_collision0" type="mesh" mesh="sektion_convexdecomposition0" class="cabinet_collision"/>
+            <geom name="sektion_collision1" type="mesh" mesh="sektion_convexdecomposition1" class="cabinet_collision"/>
+            <geom name="sektion_collision2" type="mesh" mesh="sektion_convexdecomposition2" class="cabinet_collision"/>
+            <geom name="sektion_collision3" type="mesh" mesh="sektion_convexdecomposition3" class="cabinet_collision"/>
+            <geom name="sektion_collision4" type="mesh" mesh="sektion_convexdecomposition4" class="cabinet_collision"/>
+            <geom name="sektion_collision5" type="mesh" mesh="sektion_convexdecomposition5" class="cabinet_collision"/>
+            <geom name="sektion_collision6" type="mesh" mesh="sektion_convexdecomposition6" class="cabinet_collision"/>
             
             <!-- ==================== DOOR RIGHT ==================== -->
-            <!-- Joint index: 1 (door_right_joint) -->
+            <!-- Joint index: 0 (door_right_joint) - Following sektion_cabinet_2.xml order -->
             <body name="door_right_link" pos="0.3162 0.3757 -0.12973">
                 <inertial mass="1.0" pos="0 -0.18 0" diaginertia="0.01 0.01 0.01"/>
                 <joint name="door_right_joint" type="hinge" axis="0 0 1"
                        range="0 1.57" class="door"/>
-                <!-- Door visual -->
-                <geom name="door_right_visual" type="mesh" mesh="door_right"
-                      pos="0 -0.184706 0" material="cabinet_front" class="cabinet_visual"/>
                 <!-- Door collision -->
-                <geom name="door_right_collision" type="mesh" mesh="door_right_collision"
-                      pos="0 -0.184706 0" class="cabinet_collision"/>
-                <!-- Door knob -->
-                <body name="door_right_nob_link" pos="0 0 0">
-                    <inertial mass="0.1" pos="0 -0.18 0" diaginertia="0.001 0.001 0.001"/>
-                    <geom name="door_right_nob_visual" type="mesh" mesh="door_right_nob"
-                          pos="0 -0.184706 0" material="cabinet_grey" class="cabinet_visual"/>
-                    <geom name="door_right_nob_collision" type="mesh" mesh="door_right_nob_collision"
-                          pos="0 -0.184706 0" class="cabinet_collision"/>
-                    <site name="door_right_handle" type="sphere" size="0.015"
-                          pos="0.02 -0.02 0" rgba="1 1 0 0.5"/>
-                </body>
+                <geom name="door_right_collision" type="mesh" mesh="door_right"
+                      pos="0 -0.184706 0" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <!-- Door knob collision -->
+                <geom name="door_right_nob_collision" type="mesh" mesh="door_right_nob"
+                      pos="0 -0.184706 0" rgba="0.6 0.6 0.6 1" class="cabinet_collision"/>
+                <site name="door_right_handle" type="sphere" size="0.015"
+                      pos="0.02 -0.02 0" rgba="1 1 0 0.5"/>
             </body>
             
-            <!-- ==================== DRAWER BOTTOM ==================== -->
-            <!-- Joint index: 2 (drawer_bottom_joint) -->
-            <body name="drawer_bottom" pos="0.0515 0 0.18795">
-                <inertial mass="0.5" pos="0.15 0 0" diaginertia="0.005 0.005 0.005"/>
-                <joint name="drawer_bottom_joint" type="slide" axis="1 0 0"
-                       range="0 0.4" class="drawer"/>
-                <!-- Drawer body visual -->
-                <geom name="drawer_bottom_visual" type="mesh" mesh="drawer"
-                      material="cabinet_front" class="cabinet_visual"/>
-                <!-- Drawer body collision -->
-                <geom name="drawer_bottom_collision" type="mesh" mesh="drawer_collision"
-                      class="cabinet_collision"/>
-                <!-- Drawer handle -->
-                <body name="drawer_handle_bottom" pos="0 0 0">
-                    <inertial mass="0.1" pos="0.3 0 0" diaginertia="0.001 0.001 0.001"/>
-                    <geom name="drawer_handle_bottom_visual" type="mesh" mesh="drawer_handle"
-                          material="cabinet_grey" class="cabinet_visual"/>
-                    <geom name="drawer_handle_bottom_collision" type="mesh" mesh="drawer_handle_collision"
-                          class="cabinet_collision" friction="1.0 0.3 0.0001"/>
-                    <site name="drawer_bottom_handle" type="sphere" size="0.015"
-                          pos="0.303 0 0.01" rgba="0 1 0 0.5"/>
-                </body>
+            <!-- ==================== DOOR LEFT ==================== -->
+            <!-- Joint index: 1 (door_left_joint) -->
+            <body name="door_left_link" pos="0.3162 -0.3757 -0.12973">
+                <inertial mass="1.0" pos="0 0.18 0" diaginertia="0.01 0.01 0.01"/>
+                <joint name="door_left_joint" type="hinge" axis="0 0 1"
+                       range="-1.57 0" class="door"/>
+                <!-- Door collision -->
+                <geom name="door_left_collision" type="mesh" mesh="door_left"
+                      pos="0 0.184706 0" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <!-- Door knob collision -->
+                <geom name="door_left_nob_collision" type="mesh" mesh="door_left_nob"
+                      pos="0 0.184706 0" rgba="0.6 0.6 0.6 1" class="cabinet_collision"/>
+                <site name="door_left_handle" type="sphere" size="0.015"
+                      pos="0.02 0.02 0" rgba="0 0 1 0.5"/>
             </body>
             
             <!-- ==================== DRAWER TOP ==================== -->
-            <!-- Joint index: 3 (drawer_top_joint) - PRIMARY TASK TARGET -->
+            <!-- Joint index: 2 (drawer_top_joint) - PRIMARY TASK TARGET -->
             <!-- This is the drawer referenced by cabinet_dof_pos[:, 3] in Isaac Lab -->
             <body name="drawer_top" pos="0.0515 0 0.3172">
                 <inertial mass="0.5" pos="0.15 0 0" diaginertia="0.005 0.005 0.005"/>
                 <joint name="drawer_top_joint" type="slide" axis="1 0 0" 
                        range="0 0.4" class="drawer"/>
-                <!-- Drawer body visual -->
-                <geom name="drawer_top_visual" type="mesh" mesh="drawer"
-                      material="cabinet_front" class="cabinet_visual"/>
+                <!-- Drawer body collision (convex decomposition) -->
+                <geom name="drawer_top_collision0" type="mesh" mesh="drawer_convexdecomposition0" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <geom name="drawer_top_collision1" type="mesh" mesh="drawer_convexdecomposition1" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <geom name="drawer_top_collision2" type="mesh" mesh="drawer_convexdecomposition2" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <geom name="drawer_top_collision3" type="mesh" mesh="drawer_convexdecomposition3" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <geom name="drawer_top_collision4" type="mesh" mesh="drawer_convexdecomposition4" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <geom name="drawer_top_collision5" type="mesh" mesh="drawer_convexdecomposition5" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <geom name="drawer_top_collision6" type="mesh" mesh="drawer_convexdecomposition6" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <!-- Drawer handle collision -->
+                <geom name="drawer_handle_top_collision" type="mesh" mesh="drawer_handle_convexdecomposition" 
+                      rgba="0.6 0.6 0.6 1" class="cabinet_collision" friction="2.0 0.6 0.0001"/>
+                <!-- Primary grasp target site -->
+                <site name="drawer_top_handle" type="sphere" size="0.02" 
+                      pos="0.303 0 0.01" rgba="1 0 0 0.8"/>
+            </body>
+            
+            <!-- ==================== DRAWER BOTTOM ==================== -->
+            <!-- Joint index: 3 (drawer_bottom_joint) -->
+            <body name="drawer_bottom" pos="0.0515 0 0.18795">
+                <inertial mass="0.5" pos="0.15 0 0" diaginertia="0.005 0.005 0.005"/>
+                <joint name="drawer_bottom_joint" type="slide" axis="1 0 0"
+                       range="0 0.4" class="drawer"/>
                 <!-- Drawer body collision -->
-                <geom name="drawer_top_collision" type="mesh" mesh="drawer_collision"
-                      class="cabinet_collision"/>
-                <!-- Drawer handle - MAIN GRASP TARGET -->
-                <body name="drawer_handle_top" pos="0 0 0">
-                    <inertial mass="0.1" pos="0.3 0 0" diaginertia="0.001 0.001 0.001"/>
-                    <geom name="drawer_handle_top_visual" type="mesh" mesh="drawer_handle"
-                          material="cabinet_grey" class="cabinet_visual"/>
-                    <geom name="drawer_handle_top_collision" type="mesh" mesh="drawer_handle_collision"
-                          class="cabinet_collision" friction="2.0 0.6 0.0001"/>
-                    <!-- Primary grasp target site -->
-                    <site name="drawer_top_handle" type="sphere" size="0.02" 
-                          pos="0.303 0 0.01" rgba="1 0 0 0.8"/>
-                </body>
+                <geom name="drawer_bottom_collision" type="mesh" mesh="drawer_convexdecomposition" 
+                      rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
+                <!-- Drawer handle collision -->
+                <geom name="drawer_handle_bottom_collision" type="mesh" mesh="drawer_handle_convexdecomposition"
+                      rgba="0.6 0.6 0.6 1" class="cabinet_collision" friction="1.0 0.3 0.0001"/>
+                <site name="drawer_bottom_handle" type="sphere" size="0.015"
+                      pos="0.303 0 0.01" rgba="0 1 0 0.5"/>
             </body>
             
         </body>
@@ -499,29 +483,29 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
             gainprm="0.01568627451 0 0" biasprm="0 -100 -10"/>
     </actuator>
 
-    <!-- Sensors for cabinet joint positions (matching Isaac Lab observation) -->
+    <!-- Sensors for cabinet joint positions (matching sektion_cabinet_2 order) -->
     <sensor>
-        <jointpos name="door_left_pos" joint="door_left_joint"/>
         <jointpos name="door_right_pos" joint="door_right_joint"/>
-        <jointpos name="drawer_bottom_pos" joint="drawer_bottom_joint"/>
+        <jointpos name="door_left_pos" joint="door_left_joint"/>
         <jointpos name="drawer_top_pos" joint="drawer_top_joint"/>
+        <jointpos name="drawer_bottom_pos" joint="drawer_bottom_joint"/>
         
-        <jointvel name="door_left_vel" joint="door_left_joint"/>
         <jointvel name="door_right_vel" joint="door_right_joint"/>
-        <jointvel name="drawer_bottom_vel" joint="drawer_bottom_joint"/>
+        <jointvel name="door_left_vel" joint="door_left_joint"/>
         <jointvel name="drawer_top_vel" joint="drawer_top_joint"/>
+        <jointvel name="drawer_bottom_vel" joint="drawer_bottom_joint"/>
     </sensor>
 
     <!-- Initial state keyframe (from Isaac Lab FrankaCabinetEnv) -->
     <!-- qpos order: 7 arm joints + 2 finger joints + 4 cabinet joints -->
     <!-- Robot joints: panda_joint1-7, panda_finger_joint1-2 -->
-    <!-- Cabinet joints: door_left, door_right, drawer_bottom, drawer_top (all closed = 0) -->
+    <!-- Cabinet joints (sektion_cabinet_2 order): door_right, door_left, drawer_top, drawer_bottom (all closed = 0) -->
     <keyframe>
         <key name="home" 
              qpos="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 0.035 0.035 0 0 0 0" 
              ctrl="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 255"/>
         <key name="drawer_open" 
-             qpos="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 0.035 0.035 0 0 0 0.39" 
+             qpos="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 0.035 0.035 0 0 0.39 0" 
              ctrl="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 255"/>
     </keyframe>
 </mujoco>

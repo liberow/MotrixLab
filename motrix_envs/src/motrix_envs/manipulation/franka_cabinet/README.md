@@ -43,14 +43,15 @@ from . import basic, locomotion, manipulation  # noqa: F401
 
 ```bash
 uv run scripts/view.py --env franka_cabinet
-# 使用torch
-uv run scripts/train.py --env franka_cabinet --train-backend=torch
 ```
 
 ### 训练模型
 
 ```bash
 uv run scripts/train.py --env franka_cabinet
+
+# 使用torch
+uv run scripts/train.py --env franka_cabinet --train-backend=torch
 ```
 
 训练结果会保存在 `runs/{env-name}/` 目录下。
