@@ -111,9 +111,11 @@ class manipulation:
         num_envs: int = 2048
 
         # Override PPO configuration
-        rollouts: int = 24
+        rollouts: int = 16
         policy_hidden_layer_sizes: tuple[int, ...] = (256, 128, 64)
         value_hidden_layer_sizes: tuple[int, ...] = (256, 128, 64)
-        learning_epochs: int = 5
-        mini_batches: int = 4
-        learning_rate: float = 3e-4
+        learning_epochs: int = 8
+        mini_batches: int = 8
+        learning_rate: float = 5.0e-4
+        rewards_shaper_scale: float = 0.01
+        time_limit_bootstrap: bool = False
