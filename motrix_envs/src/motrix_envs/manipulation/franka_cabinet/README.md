@@ -64,6 +64,9 @@ uv run scripts/train.py --env franka_cabinet --train-backend=torch
 
 # 指定数量
 uv run scripts/train.py --env franka_cabinet --render --num-envs=4
+
+# 指定 GPU
+CUDA_VISIBLE_DEVICES=5 uv run scripts/train.py --env franka_cabinet
 ```
 
 训练结果会保存在 `runs/{env-name}/` 目录下。

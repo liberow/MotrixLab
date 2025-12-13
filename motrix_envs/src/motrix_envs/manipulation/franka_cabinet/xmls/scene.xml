@@ -1,26 +1,26 @@
 <?xml version="1.0" ?>
 <!-- 
-Franka Cabinet Environment for MotrixLab
-Franka Panda robot with parallel gripper, adapted for drawer opening task
-Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
+MotrixLab Franka Cabinet 环境
+Franka Panda 机械臂配合平行夹爪，用于抽屉开启任务
+基于 Isaac Lab 的 "Isaac-Franka-Cabinet-Direct-v0" 实现
 -->
 <mujoco model="franka_cabinet_scene">
     
     <compiler angle="radian" autolimits="true"/>
     
-    <!-- Use implicit integrator for better stability with articulated robots -->
-    <!-- Smaller timestep (0.005) for numerical stability -->
+    <!-- 使用 implicit 积分器以提高关节机器人的稳定性 -->
+    <!-- 较小的时间步长 (0.005) 用于数值稳定性 -->
     <option integrator="implicit" timestep="0.005"/>
     
-    <!-- Franka Panda defaults -->
-    <!-- Increased armature (0.1 -> 0.5) and damping (1 -> 5) for stability -->
+    <!-- Franka Panda 默认参数 -->
+    <!-- 增大 armature (0.1 -> 0.5) 和 damping (1 -> 5) 以提高稳定性 -->
     <default>
         <default class="panda">
             <material specular="0.5" shininess="0.25"/>
             <joint armature="0.5" damping="5" axis="0 0 1" range="-2.8973 2.8973"/>
             <general dyntype="none" biastype="affine" ctrlrange="-2.8973 2.8973" forcerange="-87 87"/>
             <default class="finger">
-                <!-- Increase finger joint armature to further regularize inertia matrix in MotrixSim -->
+                <!-- 增大手指关节 armature 以在 MotrixSim 中正则化惯性矩阵 -->
                 <joint axis="0 1 0" type="slide" range="0 0.04" armature="0.05"/>
             </default>
             <default class="visual">
@@ -46,41 +46,40 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
             </default>
         </default>
         
-        <!-- Sektion Cabinet defaults -->
+        <!-- Sektion Cabinet 默认参数 -->
         <default class="cabinet">
             <joint damping="0.5" armature="0.01"/>
             <geom friction="1.0 0.005 0.0001" condim="3"/>
         </default>
         <default class="cabinet_collision">
-            <!-- Cabinet geoms are currently only defined as collision shapes; to make the
-                 cabinet visible in the default viewer, render them in group 2 (same as
-                 the robot visual geoms). -->
+            <!-- 柜体 geom 目前仅定义为碰撞体；为在默认查看器中可见，
+                 将其渲染在 group 2（与机器人视觉 geom 相同）。 -->
             <geom group="2"/>
         </default>
         <default class="door">
-            <!-- Increased damping (0.05->5.0) and friction (0.025->0.5) to prevent free swinging -->
+            <!-- 增大 damping (0.05->5.0) 和 friction (0.025->0.5) 以防止门自由摆动 -->
             <joint type="hinge" damping="5.0" frictionloss="0.5" armature="0.01"/>
         </default>
         <default class="drawer">
-            <!-- Increased damping (0.01->2.0) and friction (0.01->0.2) to prevent drift -->
+            <!-- 增大 damping (0.01->2.0) 和 friction (0.01->0.2) 以防止抽屉漂移 -->
             <joint type="slide" damping="2.0" frictionloss="0.2" armature="0.01"/>
         </default>
     </default>
 
     <asset>
-        <!-- Franka Panda materials -->
+        <!-- Franka Panda 材质 -->
         <material class="panda" name="white" rgba="1 1 1 1"/>
         <material class="panda" name="off_white" rgba="0.901961 0.921569 0.929412 1"/>
         <material class="panda" name="black" rgba="0.25 0.25 0.25 1"/>
         <material class="panda" name="green" rgba="0 1 0 1"/>
         <material class="panda" name="light_blue" rgba="0.039216 0.541176 0.780392 1"/>
         
-        <!-- Sektion Cabinet materials -->
+        <!-- Sektion Cabinet 材质 -->
         <material name="cabinet_white" rgba="0.85 0.85 0.85 1"/>
         <material name="cabinet_grey" rgba="0.6 0.6 0.6 1"/>
         <material name="cabinet_front" rgba="0.4 0.4 0.4 1"/>
         
-        <!-- Sektion Cabinet 2 meshes (convex decomposition) -->
+        <!-- Sektion Cabinet 2 网格（凸分解） -->
         <mesh name="sektion_convexdecomposition0" file="assets/sektion_cabinet/sektion_convexdecomposition0.obj"/>
         <mesh name="sektion_convexdecomposition1" file="assets/sektion_cabinet/sektion_convexdecomposition1.obj"/>
         <mesh name="sektion_convexdecomposition2" file="assets/sektion_cabinet/sektion_convexdecomposition2.obj"/>
@@ -102,7 +101,7 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
         <mesh name="door_left" file="assets/sektion_cabinet/door_left.stl"/>
         <mesh name="door_left_nob" file="assets/sektion_cabinet/door_left_nob.stl"/>
 
-        <!-- Collision meshes -->
+        <!-- 碰撞网格 -->
         <mesh name="link0_c" file="assets/franka_panda/link0.stl"/>
         <mesh name="link1_c" file="assets/franka_panda/link1.stl"/>
         <mesh name="link2_c" file="assets/franka_panda/link2.stl"/>
@@ -115,7 +114,7 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
         <mesh name="link7_c" file="assets/franka_panda/link7.stl"/>
         <mesh name="hand_c" file="assets/franka_panda/hand.stl"/>
 
-        <!-- Visual meshes -->
+        <!-- 视觉网格 -->
         <mesh file="assets/franka_panda/link0_0.obj"/>
         <mesh file="assets/franka_panda/link0_1.obj"/>
         <mesh file="assets/franka_panda/link0_2.obj"/>
@@ -173,14 +172,14 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
         <mesh file="assets/franka_panda/finger_0.obj"/>
         <mesh file="assets/franka_panda/finger_1.obj"/>
         
-        <!-- Environment textures -->
+        <!-- 环境纹理 -->
         <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
         <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
             markrgb="0.8 0.8 0.8" width="300" height="300"/>
         <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
     </asset>
 
-    <!-- Visual options -->
+    <!-- 视觉选项 -->
     <visual>
         <headlight diffuse="0.3 0.3 0.3" ambient="0.2 0.2 0.2" specular="0 0 0"/>
         <rgba haze="0.15 0.25 0.35 1"/>
@@ -189,24 +188,24 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
     </visual>
 
     <worldbody>
-        <!-- Ground plane -->
+        <!-- 地面 -->
         <geom name="floor" size="3 3 0.05" type="plane" material="groundplane"/>
         
-        <!-- Lights -->
+        <!-- 灯光 -->
         <light name="top" pos="0 0 2" mode="trackcom"/>
         <light pos="0 0 4.5" dir="0 0 -1" directional="true"/>
         <light pos="0 4.5 0.6" dir="0 -1 0" directional="true"/>
         <light pos="0 -4.5 0.6" dir="0 1 0" directional="true"/>
         
-        <!-- Cameras (adjusted for Isaac Lab layout: robot at (1,0,0), cabinet at (0,0,0.4)) -->
+        <!-- 相机（根据 Isaac Lab 布局调整：机器人在 (1,0,0)，柜子在 (0,0,0.4)） -->
         <camera name="side_camera" pos="0.5 -1.2 1.0" xyaxes="1 0 0 0 0.5 1" mode="fixed" fovy="58"/>
         <camera name="front_camera" pos="0.5 1.2 1.0" xyaxes="-1 0 0 0 0.5 1" mode="fixed" fovy="58"/>
         <camera name="top_camera" pos="0.5 0 2.5" xyaxes="0 -1 0 1 0 0" mode="fixed" fovy="58"/>
         
         <!-- ================================================================== -->
-        <!-- Franka Panda Robot Arm (MUST come first for Isaac Lab qpos order)  -->
-        <!-- Robot at (1, 0, 0), facing -X toward cabinet                       -->
-        <!-- Joint order: panda_joint1-7 [0-6], finger_joint1-2 [7-8]          -->
+        <!-- Franka Panda 机械臂（必须放在最前面以匹配 Isaac Lab 的 qpos 顺序）   -->
+        <!-- 机器人位于 (1, 0, 0)，朝向 -X 方向面对柜子                           -->
+        <!-- 关节顺序：panda_joint1-7 [0-6], finger_joint1-2 [7-8]              -->
         <!-- ================================================================== -->
         <body name="link0" pos="1.0 0.0 0.0" childclass="panda">
             <inertial mass="0.629769" pos="-0.041018 -0.00014 0.049974"
@@ -306,7 +305,7 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
                                         <geom mesh="link7_7" material="white" class="visual"/>
                                         <geom mesh="link7_c" class="collision"/>
                                         
-                                        <!-- Hand (gripper base) -->
+                                        <!-- 手部（夹爪基座） -->
                                         <body name="hand" pos="0 0 0.107" quat="0.9238795 0 0 -0.3826834">
                                             <inertial mass="0.73" pos="-0.01 0 0.03" diaginertia="0.001 0.0025 0.0017"/>
                                             <geom mesh="hand_0" material="off_white" class="visual"/>
@@ -316,12 +315,12 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
                                             <geom mesh="hand_4" material="off_white" class="visual"/>
                                             <geom mesh="hand_c" class="collision"/>
                                             
-                                            <!-- End effector site -->
+                                            <!-- 末端执行器位置标记 -->
                                             <site name="eef" rgba="1 0 0 0.5" pos="0 0 0.1034" size="0.01" group="1"/>
                                             
-                                            <!-- Left finger -->
+                                            <!-- 左手指 -->
                                             <body name="left_finger" pos="0 0 0.0584">
-                                                <!-- Increase finger inertia (×10) to avoid near-singular inertia matrices -->
+                                                <!-- 增大手指惯量（×10）以避免惯性矩阵接近奇异 -->
                                                 <inertial mass="0.02" pos="0 0 0" diaginertia="2.375e-3 2.375e-3 7.5e-4"/>
                                                 <joint name="panda_finger_joint1" class="finger"/>
                                                 <geom mesh="finger_0" material="off_white" class="visual"/>
@@ -334,9 +333,9 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
                                                 <geom class="fingertip_pad_collision_5"/>
                                             </body>
                                             
-                                            <!-- Right finger -->
+                                            <!-- 右手指 -->
                                             <body name="right_finger" pos="0 0 0.0584" quat="0 0 0 1">
-                                                <!-- Increase finger inertia (×10) to avoid near-singular inertia matrices -->
+                                                <!-- 增大手指惯量（×10）以避免惯性矩阵接近奇异 -->
                                                 <inertial mass="0.02" pos="0 0 0" diaginertia="2.375e-3 2.375e-3 7.5e-4"/>
                                                 <joint name="panda_finger_joint2" class="finger"/>
                                                 <geom mesh="finger_0" material="off_white" class="visual"/>
@@ -359,14 +358,14 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
         </body>
         
         <!-- ================================================================== -->
-        <!-- Sektion Cabinet 2 (4 DOF: 2 doors + 2 drawers)                     -->
-        <!-- Cabinet at (0, 0, 0.4), Robot at (1, 0, 0)                         -->
-        <!-- Drawer opens in +X direction toward the robot                      -->
-        <!-- Joint order: door_right[9], door_left[10], drawer_top[11], drawer_bottom[12] -->
-        <!-- Using convex decomposition meshes for better collision detection   -->
+        <!-- Sektion Cabinet 2（4 自由度：2 门 + 2 抽屉）                         -->
+        <!-- 柜子位于 (0, 0, 0.4)，机器人位于 (1, 0, 0)                           -->
+        <!-- 抽屉沿 +X 方向朝向机器人打开                                         -->
+        <!-- 关节顺序：door_right[9], door_left[10], drawer_top[11], drawer_bottom[12] -->
+        <!-- 使用凸分解网格以获得更好的碰撞检测                                    -->
         <!-- ================================================================== -->
         <body name="sektion" pos="0 0 0.4" childclass="cabinet">
-            <!-- Cabinet body collision (convex decomposition) -->
+            <!-- 柜体碰撞体（凸分解） -->
             <geom name="sektion_collision0" type="mesh" mesh="sektion_convexdecomposition0" class="cabinet_collision"/>
             <geom name="sektion_collision1" type="mesh" mesh="sektion_convexdecomposition1" class="cabinet_collision"/>
             <geom name="sektion_collision2" type="mesh" mesh="sektion_convexdecomposition2" class="cabinet_collision"/>
@@ -375,49 +374,48 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
             <geom name="sektion_collision5" type="mesh" mesh="sektion_convexdecomposition5" class="cabinet_collision"/>
             <geom name="sektion_collision6" type="mesh" mesh="sektion_convexdecomposition6" class="cabinet_collision"/>
             
-            <!-- ==================== DOOR RIGHT ==================== -->
-            <!-- Joint index: 0 (door_right_joint) - Following sektion_cabinet_2.xml order -->
+            <!-- ==================== 右门 ==================== -->
+            <!-- 关节索引：0 (door_right_joint) - 遵循 sektion_cabinet_2.xml 顺序 -->
             <body name="door_right_link" pos="0.3162 0.3757 -0.12973">
                 <inertial mass="1.0" pos="0 -0.18 0" diaginertia="0.01 0.01 0.01"/>
                 <joint name="door_right_joint" type="hinge" axis="0 0 1"
                        range="0 1.57" class="door"/>
-                <!-- Door collision -->
+                <!-- 门碰撞体 -->
                 <geom name="door_right_collision" type="mesh" mesh="door_right"
                       pos="0 -0.184706 0" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
-                <!-- Door knob collision -->
+                <!-- 门把手碰撞体 -->
                 <geom name="door_right_nob_collision" type="mesh" mesh="door_right_nob"
                       pos="0 -0.184706 0" rgba="0.6 0.6 0.6 1" class="cabinet_collision"/>
                 <site name="door_right_handle" type="sphere" size="0.015"
                       pos="0.02 -0.02 0" rgba="1 1 0 0.5"/>
             </body>
             
-            <!-- ==================== DOOR LEFT ==================== -->
-            <!-- Joint index: 1 (door_left_joint) -->
+            <!-- ==================== 左门 ==================== -->
+            <!-- 关节索引：1 (door_left_joint) -->
             <body name="door_left_link" pos="0.3162 -0.3757 -0.12973">
                 <inertial mass="1.0" pos="0 0.18 0" diaginertia="0.01 0.01 0.01"/>
                 <joint name="door_left_joint" type="hinge" axis="0 0 1"
                        range="-1.57 0" class="door"/>
-                <!-- Door collision -->
+                <!-- 门碰撞体 -->
                 <geom name="door_left_collision" type="mesh" mesh="door_left"
                       pos="0 0.184706 0" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
-                <!-- Door knob collision -->
+                <!-- 门把手碰撞体 -->
                 <geom name="door_left_nob_collision" type="mesh" mesh="door_left_nob"
                       pos="0 0.184706 0" rgba="0.6 0.6 0.6 1" class="cabinet_collision"/>
                 <site name="door_left_handle" type="sphere" size="0.015"
                       pos="0.02 0.02 0" rgba="0 0 1 0.5"/>
             </body>
             
-            <!-- ==================== DRAWER TOP ==================== -->
-            <!-- Joint index: 2 (drawer_top_joint) - PRIMARY TASK TARGET -->
-            <!-- This is the drawer referenced by cabinet_dof_pos[:, 3] in Isaac Lab -->
+            <!-- ==================== 顶部抽屉 ==================== -->
+            <!-- 关节索引：2 (drawer_top_joint) - 主要任务目标 -->
+            <!-- 这是 Isaac Lab 中 cabinet_dof_pos[:, 3] 引用的抽屉 -->
             <body name="drawer_top" pos="0.0515 0 0.3172">
                 <inertial mass="0.5" pos="0.15 0 0" diaginertia="0.005 0.005 0.005"/>
-                <!-- Increase damping / friction for top drawer as well so it does not
-                     spontaneously slide out under small numerical/contact perturbations. -->
+                <!-- 降低 damping/friction 以匹配 Isaac Lab (damping=1.0)，使抽屉更容易拉动 -->
                 <joint name="drawer_top_joint" type="slide" axis="1 0 0" 
                        range="0 0.4" class="drawer"
-                       damping="10.0" frictionloss="5.0" armature="0.05"/>
-                <!-- Drawer body collision (convex decomposition) -->
+                       damping="1.0" frictionloss="0.5" armature="0.01"/>
+                <!-- 抽屉本体碰撞（凸分解） -->
                 <geom name="drawer_top_collision0" type="mesh" mesh="drawer_convexdecomposition0" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
                 <geom name="drawer_top_collision1" type="mesh" mesh="drawer_convexdecomposition1" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
                 <geom name="drawer_top_collision2" type="mesh" mesh="drawer_convexdecomposition2" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
@@ -425,28 +423,26 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
                 <geom name="drawer_top_collision4" type="mesh" mesh="drawer_convexdecomposition4" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
                 <geom name="drawer_top_collision5" type="mesh" mesh="drawer_convexdecomposition5" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
                 <geom name="drawer_top_collision6" type="mesh" mesh="drawer_convexdecomposition6" rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
-                <!-- Drawer handle collision -->
+                <!-- 抽屉把手碰撞体（降低摩擦以匹配 Isaac Lab） -->
                 <geom name="drawer_handle_top_collision" type="mesh" mesh="drawer_handle_convexdecomposition" 
-                      rgba="0.6 0.6 0.6 1" class="cabinet_collision" friction="2.0 0.6 0.0001"/>
-                <!-- Primary grasp target site -->
+                      rgba="0.6 0.6 0.6 1" class="cabinet_collision" friction="1.0 0.3 0.0001"/>
+                <!-- 主要抓取目标位置标记 -->
                 <site name="drawer_top_handle" type="sphere" size="0.02" 
                       pos="0.303 0 0.01" rgba="1 0 0 0.8"/>
             </body>
             
-            <!-- ==================== DRAWER BOTTOM ==================== -->
-            <!-- Joint index: 3 (drawer_bottom_joint) -->
+            <!-- ==================== 底部抽屉 ==================== -->
+            <!-- 关节索引：3 (drawer_bottom_joint) -->
             <body name="drawer_bottom" pos="0.0515 0 0.18795">
                 <inertial mass="0.5" pos="0.15 0 0" diaginertia="0.005 0.005 0.005"/>
-                <!-- Make bottom drawer much stiffer so it visually stays still while the
-                     top drawer is pulled out by the robot. Override damping and friction
-                     here instead of changing the shared 'drawer' default. -->
+                <!-- 底部抽屉使用稍高的阻尼以保持静止 -->
                 <joint name="drawer_bottom_joint" type="slide" axis="1 0 0"
                        range="0 0.4" class="drawer"
-                       damping="10.0" frictionloss="5.0" armature="0.05"/>
-                <!-- Drawer body collision -->
+                       damping="2.0" frictionloss="1.0" armature="0.01"/>
+                <!-- 抽屉本体碰撞 -->
                 <geom name="drawer_bottom_collision" type="mesh" mesh="drawer_convexdecomposition" 
                       rgba="0.4 0.4 0.4 1" class="cabinet_collision"/>
-                <!-- Drawer handle collision -->
+                <!-- 抽屉把手碰撞体 -->
                 <geom name="drawer_handle_bottom_collision" type="mesh" mesh="drawer_handle_convexdecomposition"
                       rgba="0.6 0.6 0.6 1" class="cabinet_collision" friction="1.0 0.3 0.0001"/>
                 <site name="drawer_bottom_handle" type="sphere" size="0.015"
@@ -456,7 +452,7 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
         </body>
     </worldbody>
 
-    <!-- Gripper finger tendon for synchronized control -->
+    <!-- 夹爪手指腱用于同步控制 -->
     <tendon>
         <fixed name="split">
             <joint joint="panda_finger_joint1" coef="0.5"/>
@@ -464,33 +460,33 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
         </fixed>
     </tendon>
 
-    <!-- Gripper equality constraint
-         Note: The panda fingers are already coupled via the 'split' tendon above.
-         To avoid redundant constraints that can make the inertia matrix non-positive definite
-         in MotrixSim's impulse solver, we intentionally remove the extra joint equality here. -->
+    <!-- 夹爪等式约束
+         注意：panda 手指已通过上面的 'split' 腱耦合。
+         为避免冗余约束导致 MotrixSim 冲量求解器中惯性矩阵非正定，
+         我们在此故意移除额外的关节等式约束。 -->
 
-    <!-- Actuators (9 DOF: 7 arm + 1 coupled gripper via tendon)
-         Using lower gains to match Isaac Lab's ImplicitActuator (stiffness=80, damping=4)
-         This prevents instability from high-gain position control -->
+    <!-- 执行器（9 自由度：7 臂关节 + 1 耦合夹爪通过腱控制）
+         使用较低增益以匹配 Isaac Lab 的 ImplicitActuator (stiffness=80, damping=4)
+         这可以防止高增益位置控制导致的不稳定 -->
     <actuator>
-        <!-- Shoulder joints (1-4): effort_limit=87, stiffness=80, damping=4 -->
+        <!-- 肩部关节 (1-4)：effort_limit=87, stiffness=80, damping=4 -->
         <general class="panda" name="actuator1" joint="panda_joint1" gainprm="80" biasprm="0 -80 -4" forcerange="-87 87"/>
         <general class="panda" name="actuator2" joint="panda_joint2" gainprm="80" biasprm="0 -80 -4" forcerange="-87 87"
             ctrlrange="-1.7628 1.7628"/>
         <general class="panda" name="actuator3" joint="panda_joint3" gainprm="80" biasprm="0 -80 -4" forcerange="-87 87"/>
         <general class="panda" name="actuator4" joint="panda_joint4" gainprm="80" biasprm="0 -80 -4" forcerange="-87 87"
             ctrlrange="-3.0718 -0.0698"/>
-        <!-- Forearm joints (5-7): effort_limit=12, stiffness=80, damping=4 -->
+        <!-- 前臂关节 (5-7)：effort_limit=12, stiffness=80, damping=4 -->
         <general class="panda" name="actuator5" joint="panda_joint5" gainprm="80" biasprm="0 -80 -4" forcerange="-12 12"/>
         <general class="panda" name="actuator6" joint="panda_joint6" gainprm="80" biasprm="0 -80 -4" forcerange="-12 12"
             ctrlrange="-0.0175 3.7525"/>
         <general class="panda" name="actuator7" joint="panda_joint7" gainprm="80" biasprm="0 -80 -4" forcerange="-12 12"/>
-        <!-- Gripper actuator via tendon (higher stiffness for grip, matching Isaac Lab stiffness=2000) -->
+        <!-- 夹爪执行器通过腱控制（较高刚度用于抓取，匹配 Isaac Lab stiffness=2000） -->
         <general class="panda" name="actuator8" tendon="split" forcerange="-200 200" ctrlrange="0 255"
             gainprm="0.01568627451 0 0" biasprm="0 -100 -10"/>
     </actuator>
 
-    <!-- Sensors for cabinet joint positions (matching sektion_cabinet_2 order) -->
+    <!-- 柜子关节位置传感器（匹配 sektion_cabinet_2 顺序） -->
     <sensor>
         <jointpos name="door_right_pos" joint="door_right_joint"/>
         <jointpos name="door_left_pos" joint="door_left_joint"/>
@@ -503,10 +499,10 @@ Based on Isaac Lab's "Isaac-Franka-Cabinet-Direct-v0"
         <jointvel name="drawer_bottom_vel" joint="drawer_bottom_joint"/>
     </sensor>
 
-    <!-- Initial state keyframe (from Isaac Lab FrankaCabinetEnv) -->
-    <!-- qpos order: 7 arm joints + 2 finger joints + 4 cabinet joints -->
-    <!-- Robot joints: panda_joint1-7, panda_finger_joint1-2 -->
-    <!-- Cabinet joints (sektion_cabinet_2 order): door_right, door_left, drawer_top, drawer_bottom (all closed = 0) -->
+    <!-- 初始状态 keyframe（来自 Isaac Lab FrankaCabinetEnv） -->
+    <!-- qpos 顺序：7 臂关节 + 2 手指关节 + 4 柜子关节 -->
+    <!-- 机器人关节：panda_joint1-7, panda_finger_joint1-2 -->
+    <!-- 柜子关节（sektion_cabinet_2 顺序）：door_right, door_left, drawer_top, drawer_bottom（全部关闭 = 0） -->
     <keyframe>
         <key name="home" 
              qpos="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 0.035 0.035 0 0 0 0" 

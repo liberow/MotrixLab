@@ -348,12 +348,28 @@ class FrankaCabinetEnv(NpEnv):
         finger_dist_penalty += np.where(lfinger_dist < 0.0, lfinger_dist, 0.0)
         finger_dist_penalty += np.where(rfinger_dist < 0.0, rfinger_dist, 0.0)
 
+        # --- gripper close reward (only when close and aligned) ------------
+        # Condition gate: only give close reward when near and aligned
+        close_enough = (d < 0.05).astype(np.float32)  # within 5cm
+        well_aligned = (rot_reward > 0.5).astype(np.float32)  # alignment is good
+        gripper_gate = close_enough * well_aligned  # both conditions must be met
+
+        # Finger joint positions (last 2 DOFs are finger joints)
+        finger_pos = data.dof_pos[:, self._finger_dof_ids]  # shape: [num_envs, 2]
+        gripper_open_amount = np.sum(finger_pos, axis=-1)  # larger = more open
+
+        # Conditional gripper close reward: only reward closing when near and aligned
+        # gripper_open_amount range: ~0 (closed) to ~0.08 (fully open)
+        max_gripper_open = 0.08  # both fingers fully open
+        gripper_close_reward = gripper_gate * (max_gripper_open - gripper_open_amount)
+
         # --- total reward ---------------------------------------------------
         rewards = (
             cfg.dist_reward_scale * dist_reward
             + cfg.rot_reward_scale * rot_reward
             + cfg.open_reward_scale * open_reward
             + cfg.finger_reward_scale * finger_dist_penalty
+            + cfg.gripper_close_reward_scale * gripper_close_reward
             - cfg.action_penalty_scale * action_penalty
         )
 
@@ -368,6 +384,7 @@ class FrankaCabinetEnv(NpEnv):
             "open_reward": cfg.open_reward_scale * open_reward,
             "action_penalty": -cfg.action_penalty_scale * action_penalty,
             "finger_dist_penalty": cfg.finger_reward_scale * finger_dist_penalty,
+            "gripper_close_reward": cfg.gripper_close_reward_scale * gripper_close_reward,
         }
         return rewards.astype(np.float32), info
 
@@ -525,6 +542,7 @@ class FrankaCabinetEnv(NpEnv):
                 "open_reward": np.zeros((num_reset,), dtype=np.float32),
                 "action_penalty": np.zeros((num_reset,), dtype=np.float32),
                 "finger_dist_penalty": np.zeros((num_reset,), dtype=np.float32),
+                "gripper_close_reward": np.zeros((num_reset,), dtype=np.float32),
             },
         }
 

@@ -57,9 +57,9 @@ class FrankaCabinetEnvCfg(EnvCfg):
     env_spacing: float = 3.0
 
     # --- RL hyper-parameters (from Isaac Lab) -------------------------------
-    # Note: Isaac Lab uses action_scale = 7.5; we further reduce it for MotrixSim to
-    # improve numerical stability under our MuJoCo-style dynamics model.
-    action_scale: float = 0.01
+    # Note: Isaac Lab uses action_scale = 7.5; we use smaller value for MotrixSim stability.
+    # With reduced drawer damping/friction, we can now use slightly higher action_scale.
+    action_scale: float = 0.1  # Increased from 0.05 since drawer resistance is now lower
     dof_velocity_scale: float = 0.1
 
     dist_reward_scale: float = 1.5
@@ -67,6 +67,7 @@ class FrankaCabinetEnvCfg(EnvCfg):
     open_reward_scale: float = 10.0
     action_penalty_scale: float = 0.05
     finger_reward_scale: float = 2.0
+    gripper_close_reward_scale: float = 2.0  # 夹爪闭合奖励（只在靠近且对齐时生效）
 
     # --- Scene / kinematic configuration -----------------------------------
     # Names of bodies used to compute grasp frames.
