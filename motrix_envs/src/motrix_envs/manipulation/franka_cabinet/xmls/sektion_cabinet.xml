@@ -51,7 +51,7 @@
       
       <!-- 顶部抽屉 -->
       <body name="drawer_top" pos="0.0515 0 0.3172">
-        <joint name="drawer_top_joint" pos="0 0 0" axis="1 0 0" type="slide" range="0 0.4" damping="0.01" frictionloss="0.01"/>
+        <joint name="drawer_top_joint" pos="0 0 0" axis="1 0 0" type="slide" range="0 0.4" damping="0.1" frictionloss="0.1"/>
         <geom name="drawer_top_collision0" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition0"/>
         <geom name="drawer_top_collision1" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition1"/>
         <geom name="drawer_top_collision2" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition2"/>
@@ -65,11 +65,18 @@
       
       <!-- 底部抽屉 -->
       <body name="drawer_bottom" pos="0.0515 0 0.18795">
-        <joint name="drawer_bottom_joint" pos="0 0 0" axis="1 0 0" type="slide" range="0 0.4" damping="0.01" frictionloss="0.01"/>
+        <joint name="drawer_bottom_joint" pos="0 0 0" axis="1 0 0" type="slide" range="0 0.4" damping="0.05" frictionloss="0.05"/>
         <geom name="drawer_bottom_collision" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition"/>
         <geom name="drawer_handle_bottom_collision" type="mesh" rgba="0.6 0.6 0.6 1" mesh="drawer_handle_convexdecomposition"/>
         <site name="drawer_bottom_handle" type="sphere" size="0.015" pos="0.303 0 0.01" rgba="0 1 0 0.5"/>
       </body>
     </body>
   </worldbody>
+
+  <actuator>
+    <position name="drawer_top_motor" joint="drawer_top_joint" kp="80" forcerange="-400 400"/>
+    <position name="drawer_bottom_motor" joint="drawer_bottom_joint" kp="10" forcerange="-100 100"/>
+    <position name="door_left_motor" joint="door_left_joint" kp="15" forcerange="-100 100"/>
+    <position name="door_right_motor" joint="door_right_joint" kp="15" forcerange="-100 100"/>
+  </actuator>
 </mujoco>
