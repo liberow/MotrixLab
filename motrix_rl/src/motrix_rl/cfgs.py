@@ -107,10 +107,10 @@ class manipulation:
         """
 
         seed: int = 42
-        max_env_steps: int = 1024 * 400000  # ~400M steps → 200k batch steps (matching Isaac Lab)
+        max_env_steps: int = 200_000
         num_envs: int = 2048
 
-        # Override PPO configuration (matching Isaac Lab skrl_ppo_cfg.yaml)
+        # Override PPO configuration 
         rollouts: int = 16
         policy_hidden_layer_sizes: tuple[int, ...] = (256, 128, 64)
         value_hidden_layer_sizes: tuple[int, ...] = (256, 128, 64)
@@ -119,4 +119,4 @@ class manipulation:
         learning_rate: float = 5.0e-4
         rewards_shaper_scale: float = 0.01
         time_limit_bootstrap: bool = False
-        entropy_loss_scale: float = 0.005  # matching Isaac Lab (was 0.01)
+        entropy_loss_scale: float = 0.01  
