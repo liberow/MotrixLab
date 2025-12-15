@@ -2,61 +2,74 @@
   <compiler angle="radian"/>
 
   <asset>
-    <mesh name="sektion_convexdecomposition0" content_type="model/obj" file="sektion_convexdecomposition0.obj"/>
-    <mesh name="sektion_convexdecomposition1" content_type="model/obj" file="sektion_convexdecomposition1.obj"/>
-    <mesh name="sektion_convexdecomposition2" content_type="model/obj" file="sektion_convexdecomposition2.obj"/>
-    <mesh name="sektion_convexdecomposition3" content_type="model/obj" file="sektion_convexdecomposition3.obj"/>
-    <mesh name="sektion_convexdecomposition4" content_type="model/obj" file="sektion_convexdecomposition4.obj"/>
-    <mesh name="sektion_convexdecomposition5" content_type="model/obj" file="sektion_convexdecomposition5.obj"/>
-    <mesh name="sektion_convexdecomposition6" content_type="model/obj" file="sektion_convexdecomposition6.obj"/>
-    <mesh name="drawer_convexdecomposition0" content_type="model/obj" file="drawer_convexdecomposition0.obj"/>
-    <mesh name="drawer_convexdecomposition1" content_type="model/obj" file="drawer_convexdecomposition1.obj"/>
-    <mesh name="drawer_convexdecomposition2" content_type="model/obj" file="drawer_convexdecomposition2.obj"/>
-    <mesh name="drawer_convexdecomposition3" content_type="model/obj" file="drawer_convexdecomposition3.obj"/>
-    <mesh name="drawer_convexdecomposition4" content_type="model/obj" file="drawer_convexdecomposition4.obj"/>
-    <mesh name="drawer_convexdecomposition5" content_type="model/obj" file="drawer_convexdecomposition5.obj"/>
-    <mesh name="drawer_convexdecomposition6" content_type="model/obj" file="drawer_convexdecomposition6.obj"/>
-    <mesh name="drawer_handle_convexdecomposition" content_type="model/obj" file="drawer_handle_convexdecomposition.obj"/>
-    <mesh name="drawer_convexdecomposition" content_type="model/obj" file="drawer_convexdecomposition.obj"/>
-    <mesh name="door_right" content_type="model/stl" file="door_right.stl"/>
-    <mesh name="door_right_nob" content_type="model/stl" file="door_right_nob.stl"/>
-    <mesh name="door_left" content_type="model/stl" file="door_left.stl"/>
-    <mesh name="door_left_nob" content_type="model/stl" file="door_left_nob.stl"/>
+    <mesh name="sektion_convexdecomposition0" file="sektion_cabinet/sektion_convexdecomposition0.obj"/>
+    <mesh name="sektion_convexdecomposition1" file="sektion_cabinet/sektion_convexdecomposition1.obj"/>
+    <mesh name="sektion_convexdecomposition2" file="sektion_cabinet/sektion_convexdecomposition2.obj"/>
+    <mesh name="sektion_convexdecomposition3" file="sektion_cabinet/sektion_convexdecomposition3.obj"/>
+    <mesh name="sektion_convexdecomposition4" file="sektion_cabinet/sektion_convexdecomposition4.obj"/>
+    <mesh name="sektion_convexdecomposition5" file="sektion_cabinet/sektion_convexdecomposition5.obj"/>
+    <mesh name="sektion_convexdecomposition6" file="sektion_cabinet/sektion_convexdecomposition6.obj"/>
+    <mesh name="drawer_convexdecomposition0" file="sektion_cabinet/drawer_convexdecomposition0.obj"/>
+    <mesh name="drawer_convexdecomposition1" file="sektion_cabinet/drawer_convexdecomposition1.obj"/>
+    <mesh name="drawer_convexdecomposition2" file="sektion_cabinet/drawer_convexdecomposition2.obj"/>
+    <mesh name="drawer_convexdecomposition3" file="sektion_cabinet/drawer_convexdecomposition3.obj"/>
+    <mesh name="drawer_convexdecomposition4" file="sektion_cabinet/drawer_convexdecomposition4.obj"/>
+    <mesh name="drawer_convexdecomposition5" file="sektion_cabinet/drawer_convexdecomposition5.obj"/>
+    <mesh name="drawer_convexdecomposition6" file="sektion_cabinet/drawer_convexdecomposition6.obj"/>
+    <mesh name="drawer_handle_convexdecomposition" file="sektion_cabinet/drawer_handle_convexdecomposition.obj"/>
+    <mesh name="drawer_convexdecomposition" file="sektion_cabinet/drawer_convexdecomposition.obj"/>
+    <mesh name="door_right" file="sektion_cabinet/door_right.stl"/>
+    <mesh name="door_right_nob" file="sektion_cabinet/door_right_nob.stl"/>
+    <mesh name="door_left" file="sektion_cabinet/door_left.stl"/>
+    <mesh name="door_left_nob" file="sektion_cabinet/door_left_nob.stl"/>
   </asset>
 
   <worldbody>
-    <geom name="sektion_collision0" type="mesh" mesh="sektion_convexdecomposition0"/>
-    <geom name="sektion_collision1" type="mesh" mesh="sektion_convexdecomposition1"/>
-    <geom name="sektion_collision2" type="mesh" mesh="sektion_convexdecomposition2"/>
-    <geom name="sektion_collision3" type="mesh" mesh="sektion_convexdecomposition3"/>
-    <geom name="sektion_collision4" type="mesh" mesh="sektion_convexdecomposition4"/>
-    <geom name="sektion_collision5" type="mesh" mesh="sektion_convexdecomposition5"/>
-    <geom name="sektion_collision6" type="mesh" mesh="sektion_convexdecomposition6"/>
-    <body name="door_right_link" pos="0.3162 0.3757 -0.12973">
-      <joint name="door_right_joint" pos="0 0 0" axis="0 0 1" range="0 1.57" actuatorfrcrange="-1000 1000" damping="0.05" frictionloss="0.025"/>
-      <geom name="door_right_collision" pos="0 -0.184706 0" type="mesh" rgba="0.4 0.4 0.4 1" mesh="door_right"/>
-      <geom name="door_right_nob_collision" pos="0 -0.184706 0" type="mesh" rgba="0.6 0.6 0.6 1" mesh="door_right_nob"/>
-    </body>
-    <body name="door_left_link" pos="0.3162 -0.3757 -0.12973">
-      <joint name="door_left_joint" pos="0 0 0" axis="0 0 1" range="-1.57 0" actuatorfrcrange="-1000 1000" damping="0.05" frictionloss="0.025"/>
-      <geom name="door_left_collision" pos="0 0.184706 0" type="mesh" rgba="0.4 0.4 0.4 1" mesh="door_left"/>
-      <geom name="door_left_nob_collision" pos="0 0.184706 0" type="mesh" rgba="0.6 0.6 0.6 1" mesh="door_left_nob"/>
-    </body>
-    <body name="drawer_top" pos="0.0515 0 0.3172">
-      <joint name="drawer_top_joint" pos="0 0 0" axis="1 0 0" type="slide" range="0 0.4" actuatorfrcrange="-1000 1000" damping="0.01" frictionloss="0.01"/>
-      <geom name="drawer_top_collision0" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition0"/>
-      <geom name="drawer_top_collision1" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition1"/>
-      <geom name="drawer_top_collision2" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition2"/>
-      <geom name="drawer_top_collision3" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition3"/>
-      <geom name="drawer_top_collision4" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition4"/>
-      <geom name="drawer_top_collision5" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition5"/>
-      <geom name="drawer_top_collision6" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition6"/>
-      <geom name="drawer_handle_top_collision" type="mesh" rgba="0.6 0.6 0.6 1" mesh="drawer_handle_convexdecomposition"/>
-    </body>
-    <body name="drawer_bottom" pos="0.0515 0 0.18795">
-      <joint name="drawer_bottom_joint" pos="0 0 0" axis="1 0 0" type="slide" range="0 0.4" actuatorfrcrange="-1000 1000" damping="0.01" frictionloss="0.01"/>
-      <geom name="drawer_bottom_collision" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition"/>
-      <geom name="drawer_top_collision" type="mesh" rgba="0.6 0.6 0.6 1" mesh="drawer_handle_convexdecomposition"/>
+    <!-- 柜子主体 -->
+    <body name="sektion" pos="0 0 0.4">
+      <geom name="sektion_collision0" type="mesh" mesh="sektion_convexdecomposition0"/>
+      <geom name="sektion_collision1" type="mesh" mesh="sektion_convexdecomposition1"/>
+      <geom name="sektion_collision2" type="mesh" mesh="sektion_convexdecomposition2"/>
+      <geom name="sektion_collision3" type="mesh" mesh="sektion_convexdecomposition3"/>
+      <geom name="sektion_collision4" type="mesh" mesh="sektion_convexdecomposition4"/>
+      <geom name="sektion_collision5" type="mesh" mesh="sektion_convexdecomposition5"/>
+      <geom name="sektion_collision6" type="mesh" mesh="sektion_convexdecomposition6"/>
+      
+      <!-- 右门 -->
+      <body name="door_right_link" pos="0.3162 0.3757 -0.12973">
+        <joint name="door_right_joint" pos="0 0 0" axis="0 0 1" range="0 1.57" damping="0.05" frictionloss="0.025"/>
+        <geom name="door_right_collision" pos="0 -0.184706 0" type="mesh" rgba="0.4 0.4 0.4 1" mesh="door_right"/>
+        <geom name="door_right_nob_collision" pos="0 -0.184706 0" type="mesh" rgba="0.6 0.6 0.6 1" mesh="door_right_nob"/>
+      </body>
+      
+      <!-- 左门 -->
+      <body name="door_left_link" pos="0.3162 -0.3757 -0.12973">
+        <joint name="door_left_joint" pos="0 0 0" axis="0 0 1" range="-1.57 0" damping="0.05" frictionloss="0.025"/>
+        <geom name="door_left_collision" pos="0 0.184706 0" type="mesh" rgba="0.4 0.4 0.4 1" mesh="door_left"/>
+        <geom name="door_left_nob_collision" pos="0 0.184706 0" type="mesh" rgba="0.6 0.6 0.6 1" mesh="door_left_nob"/>
+      </body>
+      
+      <!-- 顶部抽屉 -->
+      <body name="drawer_top" pos="0.0515 0 0.3172">
+        <joint name="drawer_top_joint" pos="0 0 0" axis="1 0 0" type="slide" range="0 0.4" damping="0.01" frictionloss="0.01"/>
+        <geom name="drawer_top_collision0" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition0"/>
+        <geom name="drawer_top_collision1" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition1"/>
+        <geom name="drawer_top_collision2" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition2"/>
+        <geom name="drawer_top_collision3" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition3"/>
+        <geom name="drawer_top_collision4" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition4"/>
+        <geom name="drawer_top_collision5" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition5"/>
+        <geom name="drawer_top_collision6" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition6"/>
+        <geom name="drawer_handle_top_collision" type="mesh" rgba="0.6 0.6 0.6 1" mesh="drawer_handle_convexdecomposition"/>
+        <site name="drawer_top_handle" type="sphere" size="0.02" pos="0.303 0 0.01" rgba="1 0 0 0.8"/>
+      </body>
+      
+      <!-- 底部抽屉 -->
+      <body name="drawer_bottom" pos="0.0515 0 0.18795">
+        <joint name="drawer_bottom_joint" pos="0 0 0" axis="1 0 0" type="slide" range="0 0.4" damping="0.01" frictionloss="0.01"/>
+        <geom name="drawer_bottom_collision" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition"/>
+        <geom name="drawer_handle_bottom_collision" type="mesh" rgba="0.6 0.6 0.6 1" mesh="drawer_handle_convexdecomposition"/>
+        <site name="drawer_bottom_handle" type="sphere" size="0.015" pos="0.303 0 0.01" rgba="0 1 0 0.5"/>
+      </body>
     </body>
   </worldbody>
 </mujoco>
