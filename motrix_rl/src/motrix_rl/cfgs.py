@@ -108,7 +108,7 @@ class manipulation:
 
         seed: int = 42
         num_envs: int = 2048
-        max_env_steps: int = num_envs * 10_000  # 需要足够大: max_env_steps / num_envs > check_point_interval
+        max_env_steps: int = num_envs * 200_000  # 需要足够大: max_env_steps / num_envs > check_point_interval
 
         # Override PPO configuration 
         rollouts: int = 16
