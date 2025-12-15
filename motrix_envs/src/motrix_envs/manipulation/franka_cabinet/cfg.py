@@ -40,7 +40,7 @@ class FrankaCabinetEnvCfg(EnvCfg):
     env_spacing: float = 3.0
 
     # RL 超参数
-    action_scale: float = 2.0  # 动作比例因子
+    action_scale: float = 0.5  # 动作比例因子
     dof_velocity_scale: float = 0.1 # 关节速度比例因子
 
     dist_reward_scale: float = 1.5 # 距离奖励比例因子
