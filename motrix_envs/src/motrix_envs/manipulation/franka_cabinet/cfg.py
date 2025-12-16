@@ -32,7 +32,7 @@ class FrankaCabinetEnvCfg(EnvCfg):
     # 仿真时间步长
     sim_dt: float = 1.0 / 120.0  # 120 Hz physics
     # 控制时间步长
-    ctrl_dt: float = 1.0 / 60.0  # 60 Hz control
+    ctrl_dt: float = 1.0 / 120.0  # 120 Hz control
     # 最大 episode 时间
     max_episode_seconds: float = ctrl_dt * 500  # ~500 control steps
     
