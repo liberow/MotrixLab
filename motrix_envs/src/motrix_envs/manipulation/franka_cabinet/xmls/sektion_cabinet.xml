@@ -16,6 +16,7 @@
     <mesh name="drawer_convexdecomposition4" file="sektion_cabinet/drawer_convexdecomposition4.obj"/>
     <mesh name="drawer_convexdecomposition5" file="sektion_cabinet/drawer_convexdecomposition5.obj"/>
     <mesh name="drawer_convexdecomposition6" file="sektion_cabinet/drawer_convexdecomposition6.obj"/>
+    <mesh name="drawer_handle" file="sektion_cabinet/drawer_handle.obj"/>
     <mesh name="drawer_handle_convexdecomposition" file="sektion_cabinet/drawer_handle_convexdecomposition.obj"/>
     <mesh name="drawer_convexdecomposition" file="sektion_cabinet/drawer_convexdecomposition.obj"/>
     <mesh name="door_right" file="sektion_cabinet/door_right.stl"/>
@@ -59,7 +60,7 @@
         <geom name="drawer_top_collision4" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition4"/>
         <geom name="drawer_top_collision5" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition5"/>
         <geom name="drawer_top_collision6" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition6"/>
-        <geom name="drawer_handle_top_collision" type="mesh" rgba="0.6 0.6 0.6 1" mesh="drawer_handle_convexdecomposition"/>
+        <geom name="drawer_handle_top_collision" type="mesh" rgba="0.6 0.6 0.6 1" mesh="drawer_handle"/>
         <site name="drawer_top_handle" type="sphere" size="0.02" pos="0.303 0 0.01" rgba="1 0 0 0.8"/>
       </body>
       
@@ -67,7 +68,7 @@
       <body name="drawer_bottom" pos="0.0515 0 0.18795">
         <joint name="drawer_bottom_joint" pos="0 0 0" axis="1 0 0" type="slide" range="0 0.4" damping="0.05" frictionloss="0.05"/>
         <geom name="drawer_bottom_collision" type="mesh" rgba="0.4 0.4 0.4 1" mesh="drawer_convexdecomposition"/>
-        <geom name="drawer_handle_bottom_collision" type="mesh" rgba="0.6 0.6 0.6 1" mesh="drawer_handle_convexdecomposition"/>
+        <geom name="drawer_handle_bottom_collision" type="mesh" rgba="0.6 0.6 0.6 1" mesh="drawer_handle"/>
         <site name="drawer_bottom_handle" type="sphere" size="0.015" pos="0.303 0 0.01" rgba="0 1 0 0.5"/>
       </body>
     </body>
