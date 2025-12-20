@@ -108,15 +108,17 @@ class manipulation:
 
         seed: int = 42
         num_envs: int = 4096
-        max_env_steps: int = num_envs * 24_000  
+        max_env_steps: int = num_envs * 24_000
+        check_point_interval: int = 500
+        share_policy_value_features: bool = True
         
         # Override PPO configuration 
-        rollouts: int = 16
         policy_hidden_layer_sizes: tuple[int, ...] = (256, 128, 64)
         value_hidden_layer_sizes: tuple[int, ...] = (256, 128, 64)
+        rollouts: int = 16
         learning_epochs: int = 2
         mini_batches: int = 8
         learning_rate: float = 3e-4
-        rewards_shaper_scale: float = 0.01
-        time_limit_bootstrap: bool = False
-        entropy_loss_scale: float = 0.01  
+        # rewards_shaper_scale: float = 0.01
+        # time_limit_bootstrap: bool = False
+        # entropy_loss_scale: float = 0.01  

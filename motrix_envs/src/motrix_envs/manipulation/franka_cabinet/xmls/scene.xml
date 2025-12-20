@@ -1,69 +1,41 @@
 <?xml version="1.0" ?>
-<!-- 
-MotrixLab Franka Cabinet 环境
-Franka Panda 机械臂配合平行夹爪，用于抽屉开启任务
--->
+<!-- Franka Open Cabinet style scene configuration -->
 <mujoco model="franka_cabinet_scene">
   <compiler meshdir="assets"/>
-  <!-- 包含 Franka Panda 机械臂 -->
+
+  <!-- 引入 Franka Panda 机械臂与 Sektion Cabinet 柜体 -->
   <include file="panda.xml"/>
-  
-  <!-- 包含 Sektion Cabinet 柜子 -->
   <include file="sektion_cabinet.xml"/>
 
-  <statistic center="0.5 0 0.5" extent="1.5"/>
+  <statistic center="0.3 0 0.4" extent="1"/>
+
+  <option timestep="0.002" iterations="50" ls_iterations="20" integrator="implicitfast">
+    <flag eulerdamp="disable"/>
+  </option>
+
+  <custom>
+    <numeric data="12" name="max_contact_points" />
+  </custom>
 
   <visual>
-    <headlight diffuse="0.3 0.3 0.3" ambient="0.2 0.2 0.2" specular="0 0 0"/>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
     <rgba haze="0.15 0.25 0.35 1"/>
-    <global azimuth="-120" elevation="-20"/>
-    <quality shadowsize="0"/>
+    <global azimuth="120" elevation="-20"/>
+    <scale contactwidth="0.075" contactheight="0.025" forcewidth="0.05" com="0.05" framewidth="0.01" framelength="0.2"/>
   </visual>
 
   <asset>
-    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
-    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
+    <texture type="skybox" builtin="gradient" rgb1="0.4314 0.5294 0.6431" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge"
+      rgb1="0.4314 0.5294 0.6431" rgb2="0.8157 0.8549 0.9059"
       markrgb="0.8 0.8 0.8" width="300" height="300"/>
     <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
   </asset>
 
   <worldbody>
-    <!-- 地面 -->
-    <geom name="floor" size="3 3 0.05" type="plane" material="groundplane"/>
-    
-    <!-- 灯光 -->
-    <light pos="0 0 4.5" dir="0 0 -1" directional="true"/>
-    <light pos="0 4.5 0.6" dir="0 -1 0" directional="true"/>
-    <light pos="0 -4.5 0.6" dir="0 1 0" directional="true"/>
-    
-    <!-- 相机 -->
-    <camera name="side_camera" pos="0.5 -1.2 1.0" xyaxes="1 0 0 0 0.5 1" mode="fixed" fovy="58"/>
-    <camera name="front_camera" pos="0.5 1.2 1.0" xyaxes="-1 0 0 0 0.5 1" mode="fixed" fovy="58"/>
-    <camera name="top_camera" pos="0.5 0 2.5" xyaxes="0 -1 0 1 0 0" mode="fixed" fovy="58"/>
+    <!-- 地面与光源-->
+    <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" contype="1"/>
   </worldbody>
 
-  <!-- 柜子关节传感器 -->
-  <sensor>
-    <jointpos name="door_right_pos" joint="door_right_joint"/>
-    <jointpos name="door_left_pos" joint="door_left_joint"/>
-    <jointpos name="drawer_top_pos" joint="drawer_top_joint"/>
-    <jointpos name="drawer_bottom_pos" joint="drawer_bottom_joint"/>
-    
-    <jointvel name="door_right_vel" joint="door_right_joint"/>
-    <jointvel name="door_left_vel" joint="door_left_joint"/>
-    <jointvel name="drawer_top_vel" joint="drawer_top_joint"/>
-    <jointvel name="drawer_bottom_vel" joint="drawer_bottom_joint"/>
-  </sensor>
-
-  <keyframe>
-    <!-- 
-    qpos 顺序：panda_joint1-7 [0-6], finger_joint1-2 [7-8], door_right [9], door_left [10], drawer_top [11], drawer_bottom [12]
-    -->
-    <key name="home" 
-         qpos="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 0.035 0.035 0 0 0 0" 
-         ctrl="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 255"/>
-    <key name="drawer_open" 
-         qpos="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 0.035 0.035 0 0 0.39 0" 
-         ctrl="1.157 -1.066 -0.155 -2.239 -1.841 1.003 0.469 255"/>
-  </keyframe>
 </mujoco>

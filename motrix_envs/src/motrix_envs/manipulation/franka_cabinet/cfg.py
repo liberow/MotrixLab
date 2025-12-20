@@ -29,26 +29,37 @@ class FrankaCabinetEnvCfg(EnvCfg):
     model_file: str = model_file
 
     # 仿真 / 控制时间
-    # 仿真时间步长
-    sim_dt: float = 1.0 / 120.0  # 120 Hz physics
+    sim_dt: float = 0.01
     # 控制时间步长
-    ctrl_dt: float = 1.0 / 120.0  # 120 Hz control
-    # 最大 episode 时间
-    max_episode_seconds: float = ctrl_dt * 500  # ~500 control steps
+    ctrl_dt: float = 0.01
+    # 单回合最长时间（秒）
+    max_episode_seconds: float = 5.0
+    # 单回合最大步数 (max_episode_seconds / ctrl_dt)
+    max_episode_steps: int = 500
     
     # 环境间距 (用于并行环境)
     env_spacing: float = 3.0
 
-    # RL 超参数
-    action_scale: float = 0.5  # 动作比例因子
-    dof_velocity_scale: float = 0.1 # 关节速度比例因子
+    # RL / 控制相关超参数
+    # 关节速度缩放用于 obs
+    dof_velocity_scale: float = 0.1
 
-    dist_reward_scale: float = 1.5 # 距离奖励比例因子
-    rot_reward_scale: float = 1.5 # 旋转奖励比例因子
-    open_reward_scale: float = 10.0 # 打开奖励比例因子
-    action_penalty_scale: float = 0.05 # 动作惩罚比例因子
-    finger_reward_scale: float = 2.0 # 手指奖励比例因子
-    gripper_close_reward_scale: float = 2.0  # 夹爪闭合奖励比例因子
+    # 奖励系数
+    dist_reward_scale: float = 10.0             # 距离奖励系数
+    rot_reward_scale: float = 3.0               # 姿态对齐奖励系数
+    open_reward_scale: float = 20.0             # 抽屉打开奖励系数
+    finger_reward_scale: float = 5.0            # 手指位置罚项系数
+    gripper_close_reward_scale: float = 100.0   # 末端靠近时闭合奖励
+    gripper_far_close_penalty_scale: float = 20.0  # 远离时错误闭合惩罚
+
+    # 动作变化 / 关节速度惩罚的阶段性权重
+    penalty_schedule_steps: int = 12_000
+    action_penalty_scale: float = 1e-3              # 前 penalty_schedule_steps 内
+    action_penalty_scale_after: float = 2e-3        # 之后
+    joint_vel_penalty_scale_after: float = 2e-7     # 之后才启用关节速度惩罚
+
+    # reset 时关节位置噪声范围
+    joint_pos_reset_noise: float = 0.125
 
     # Scene / Kinematic Configuration
     # 用于计算抓取框架的 body 名称
@@ -69,7 +80,7 @@ class FrankaCabinetEnvCfg(EnvCfg):
         "panda_finger_joint1", "panda_finger_joint2"
     ])
     
-    # 夹爪执行器名称 (使用 tendon-based control)
+    # 夹爪执行器名称（当前使用 finger joint 直接位置控制）
     gripper_actuator_name: str = "actuator8"
     
     # 手臂执行器名称
@@ -92,7 +103,7 @@ class FrankaCabinetEnvCfg(EnvCfg):
 
     # 抽屉把手抓取位置 (在抽屉 body 框架中)
     # 抽屉顶部 drawer_top_handle 位置为 pos="0.303 0 0.01"
-    drawer_local_grasp_pos: Sequence[float] = (0.3, 0.01, 0.0)
+    drawer_local_grasp_pos: Sequence[float] = (0.303, 0.0, 0.01)
     drawer_local_grasp_quat: Sequence[float] = (0.0, 0.0, 0.0, 1.0)  # (x, y, z, w)
 
     # 用于方向对齐奖励的轴, 表示在局部框架中
