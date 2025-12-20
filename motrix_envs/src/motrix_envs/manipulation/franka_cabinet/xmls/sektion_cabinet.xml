@@ -79,4 +79,13 @@
     <position name="door_left_motor" joint="door_left_joint" kp="15" forcerange="-100 100"/>
     <position name="door_right_motor" joint="door_right_joint" kp="15" forcerange="-100 100"/>
   </actuator>
+
+  <contact>
+    <!-- 柜体与两扇门之间不产生接触力 -->
+    <exclude body1="sektion" body2="door_right_link"/>
+    <exclude body1="sektion" body2="door_left_link"/>
+    <!-- 柜体与上下两个抽屉之间不产生接触力 -->
+    <exclude body1="sektion" body2="drawer_top"/>
+    <exclude body1="sektion" body2="drawer_bottom"/>
+  </contact>
 </mujoco>
